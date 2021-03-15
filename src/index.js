@@ -1,8 +1,8 @@
-import HelloWorld from 'components/HelloWorld';
+import createHTML from 'components/vinmonopolet-app';
 import 'main.css';
 
 const main = async () => {
-    HelloWorld();
+    createHTML();
 }
 
 main().then(() => console.log('Started'));
