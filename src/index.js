@@ -1,4 +1,5 @@
-import createHTML from 'components/vinmonopolet-app';
+import createHTML from 'components/createHTML';
+import { getData } from 'components/requests'
 import 'main.css';
 
 const main = async () => {
@@ -6,3 +7,9 @@ const main = async () => {
 }
 
 main().then(() => console.log('Started'));
+
+
+getData('https://apis.vinmonopolet.no/products/v0/monthly-sales-per-store?fromSalesMonth=2020-01&toSalesMonth=2020-03&fromStoreId=351&toStoreId=351')
+  .then(data => {
+    console.log(data); 
+  });
