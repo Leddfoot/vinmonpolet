@@ -3,10 +3,14 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 require("@babel/register");
 
 const config = {
-  entry: ['@babel/polyfill','./src/index.js'],
+  // entry: ['@babel/polyfill','./src/index.js'],
+  entry: {
+    index: ['@babel/polyfill/noConflict','./src/index.js'],
+  },
   output: {
-    path: __dirname + '/public',
-    filename: 'bundle.js'
+    // path: path.resolve(__dirname, 'public/scripts'),
+    path: path.resolve(__dirname, 'public'),
+    filename: '[name]bundle.js'
   },
   module: {
     rules : [
@@ -23,6 +27,7 @@ const config = {
   },
   plugins: [
     new HtmlWebpackPlugin({
+        filename: '/public/index.html',
         hash: true,
         title: 'My Vinmonopolet'
     })
@@ -35,6 +40,8 @@ const config = {
   },
   devServer: {
     contentBase: __dirname + '/public',
+    // contentBase: path.resolve(__dirname, 'public'),
+
     compress: true,
     port: 9000,
     open: true,
