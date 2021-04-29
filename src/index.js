@@ -1,9 +1,10 @@
 import createHTML from 'components/createHTML';
 import { getData, getStoreByName, getallStores } from 'components/requests'
 import { renderStores, renderStore, renderNoStoresFound} from 'views/createPage'
-import { today } from 'components/dateCalculations'
-// import { today } from 'components/requests'
-console.log(today)
+
+let chosenStore = {}
+let possibleStores = {}
+let entireListOfStores = {}
 
 /////////////////////
 ///////////////////
@@ -15,44 +16,27 @@ console.log(today)
 //   new HtmlWebpackPlugin({
 //       filename: '/public/index.html',
 
-
-
-
-
-
 import 'main.css';
-
-
-
-// getData('https://apis.vinmonopolet.no/products/v0/monthly-sales-per-store?fromSalesMonth=2020-01&toSalesMonth=2020-03&fromStoreId=351&toStoreId=351')
-//   .then(data => {
-//     console.log(data); 
-//   });
 
 let searchTerm = 'sandvika'
 
-
-//NOTE TO FUTURE SELF: THE Vinmonpolet stores API is  only reliable with storeId, StoreNameContains, and changedSince
-//You can attempt to filter on their side but the example below will return all stores in Oslo
-//GET https://apis.vinmonopolet.no/stores/v0/details?storeNameContains=oslo&city=bergen
 getStoreByName(searchTerm)
 .then(data => {
   if (data.length === 1) {
-    
-    renderStore(data)
-    
+    chosenStore = data
+    console.log(chosenStore)
+    renderStore(chosenStore)
   }
   else if (data.length > 1)  {
     console.log(`there are ${data.length} results. Select one`)
-    renderStores(data)
-    // This is where  you are console.log(regularhours)
+    possibleStores = data
+    renderStores(possibleStores)
   } 
   else {
     getallStores(searchTerm)
      .then(data => {
-       console.log(`dl is .... ${data.length}`)
-      console.log(data)  
-      filterResults(data)
+      entireListOfStores = data  
+      filterResults(entireListOfStores)
       renderNoStoresFound()    
      })
   } 
@@ -74,12 +58,7 @@ getStoreByName(searchTerm)
 
   document.querySelector('button').addEventListener('click', function () {console.log('shitttt')})
 
-  /**
-    removeElement.addEventListener('click', (e) => {
-    removeNote(noteId)
-    location.assign('/index.html')
-})
-   */
+
 
  
 
