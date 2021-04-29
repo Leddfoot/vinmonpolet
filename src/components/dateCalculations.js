@@ -16,7 +16,7 @@ var time = todayTime.getHours() + ":" + todayTime.getMinutes() + ":" + todayTime
 // const today =format(new Date(),'yyyy.MM.dd');
 // console.log(today);
 
-const today =format(new Date('2021','4', '1'),'yyyy.MM.dd');
+const today =format(new Date('2021','4', '17'),'yyyy.MM.dd');
 
 const todayAsArray = today.split('.')
 const convertedToday = `${todayAsArray[0]}-${todayAsArray[1]}-${todayAsArray[2]}`

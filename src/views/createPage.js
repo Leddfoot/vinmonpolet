@@ -1,16 +1,17 @@
 import { setSelectedStoreHolidays, filteredHoliday, checkDayOfTheWeek } from 'components/dateCalculations'
 
-
 const generateStoreDOM = (store) => {
     const storeElement = document.createElement('div')
     const storeTextElement = document.createElement('h1')
-    storeTextElement.textContent = store[0].address.street += store[0].address.postalCode += store[0].address.city
-     
-    storeTextElement.classList.add('list-item__title')
+    
+    storeTextElement.textContent = `${store[0].storeName} is located at ${store[0].address.street}, ${store[0].address.postalCode} ${store[0].address.city}`
+        
     storeElement.appendChild(storeTextElement)
     
     return storeElement
 }
+
+
 
 const generateStorehoursHolidayDOM = () => {
     const holidayHoursElement = document.createElement('div')
@@ -41,23 +42,31 @@ const generateStoreOpeningHoursDOM = (message) => {
 }
 
 const generateSelectStoreDOM = (store) => {
-    const storeElement = document.createElement('a')
-    const storeTextElement = document.createElement('p')
-    const storeSelector = document.createElement('button')
-    storeSelector.innerHTML ='Select This Store'
-    storeTextElement.textContent = store.address.street += store.address.postalCode += store.address.city
+    const storeElement = document.createElement('div')
+    const storeTextElement = document.createElement('button')
+    // console.log(store)
+    // storeDescription = `${store[0].storeName} ${store[0].address.street}`
+    // console.log(storeDescription)
+    storeTextElement.textContent = store.storeName 
+    // storeTextElement.textContent = storeDescription
+
      
-    storeTextElement.classList.add('list-item__title')
+    storeTextElement.setAttribute('id', store.storeId)
+    storeTextElement.classList.add('clickable')
     storeElement.appendChild(storeTextElement)
-    storeElement.appendChild(storeSelector)
+
+
+
+
 
     return storeElement
 }
 
 
 
+
+
 const renderStore = (store) => {
-    
     const storesElement = document.querySelector('#stores')
     storesElement.innerHTML = ''
 
@@ -66,15 +75,13 @@ const renderStore = (store) => {
     const holidays = store[0].openingHours.exceptionHours
     setSelectedStoreHolidays(holidays)
     
-    console.log(filteredHoliday)
-    if (filteredHoliday !== null ) { //&& filteredHoliday.length === 0
+    if (filteredHoliday !== null ) { 
         
         const holidayHoursElement = generateStorehoursHolidayDOM()
         storesElement.appendChild(holidayHoursElement)
         
     } else {
         const weekday = checkDayOfTheWeek()
-        console.log(store[0].openingHours.regularHours[weekday])
         if (store[0].openingHours.regularHours[weekday].openingTime === "") {
             const openingHours = 'This store is closed all day on this date'
             const openingHoursElement = generateStoreOpeningHoursDOM(openingHours)
@@ -82,24 +89,34 @@ const renderStore = (store) => {
         } else {
             const openingHours = `This store is open on this date between ${store[0].openingHours.regularHours[weekday].openingTime} and ${store[0].openingHours.regularHours[weekday].closingTime}`
             const openingHoursElement = generateStoreOpeningHoursDOM(openingHours)
-            console.log(openingHoursElement)
             storesElement.appendChild(openingHoursElement)
         }
-        console.log(store[0].openingHours.regularHours[weekday])
         
     }
+}
+
+const selectThisStore =(id, stores)=> {
+    let filteredStore = stores.filter(store => store.storeId === id)
+    renderStore(filteredStore)
 }
 
 const renderStores = (stores) => {
     const storesElement = document.querySelector('#stores')
     storesElement.innerHTML = ''
 
-    // let stores = []
     stores.forEach((store) => {
         const storeElement = generateSelectStoreDOM(store)
         storesElement.appendChild(storeElement)
+
     })
-    
+    const clickableElements = document.querySelectorAll('.clickable')
+  
+    clickableElements.forEach((button)=> {
+    button.addEventListener("click", (event) => {
+        selectThisStore(event.target.id, stores)
+    })
+    })
+   
 }
 
 const renderNoStoresFound =()=> {

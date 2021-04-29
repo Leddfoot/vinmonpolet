@@ -7,20 +7,6 @@ const buildURL =(searchingFor)=>{
   return `${getStoreUrl}?storeNameContains=${searchingFor}`
 } 
 
-
-export async function getData(url = '', data = {}) {
-  const response = await fetch(url, {
-    method: 'GET', 
-    mode: 'cors',
-    headers: {
-      'Host': 'apis.vinmonopolet.no',
-      'Ocp-Apim-Subscription-Key': primaryApiKey
-    },
-
-  });
-  return response.json(); 
-}
-
 export async function getStoreByName(storeCity) {
     const url = buildURL(storeCity)
     const response = await fetch(url, {
@@ -33,6 +19,7 @@ export async function getStoreByName(storeCity) {
   
     });
     return response.json(); 
+
   }
 
   export async function getallStores() {
