@@ -1,11 +1,19 @@
 import { setSelectedStoreHolidays, filteredHoliday, checkDayOfTheWeek } from 'components/dateCalculations'
 
+const generateHeaderDOM = () => {
+    const headerElement = document.createElement('header')
+    const pageTitleElement = document.createElement('span')
+    const pageMainElement = document.querySelector('main')
+    pageTitleElement.textContent = 'OH SH!T is my vinmonopolet open?&!*?'
+    headerElement.appendChild(pageTitleElement)
+    pageMainElement.appendChild(headerElement)
+    
+}
+
 const generateStoreDOM = (store) => {
     const storeElement = document.createElement('div')
-    const storeTextElement = document.createElement('h1')
-    
-    storeTextElement.textContent = `${store[0].storeName} is located at ${store[0].address.street}, ${store[0].address.postalCode} ${store[0].address.city}`
-        
+    const storeTextElement = document.createElement('h1')    
+    storeTextElement.textContent = `${store[0].storeName} is located at ${store[0].address.street}, ${store[0].address.postalCode} ${store[0].address.city}`        
     storeElement.appendChild(storeTextElement)
     
     return storeElement
@@ -27,7 +35,6 @@ const generateStorehoursHolidayDOM = () => {
 
     holidayHoursElement.appendChild(holidayStatusTextElement)
     holidayHoursElement.appendChild(holidayOpenHours)
-    console.log(filteredHoliday)
      
     
     return holidayHoursElement
@@ -44,20 +51,12 @@ const generateStoreOpeningHoursDOM = (message) => {
 const generateSelectStoreDOM = (store) => {
     const storeElement = document.createElement('div')
     const storeTextElement = document.createElement('button')
-    // console.log(store)
-    // storeDescription = `${store[0].storeName} ${store[0].address.street}`
-    // console.log(storeDescription)
     storeTextElement.textContent = store.storeName 
-    // storeTextElement.textContent = storeDescription
 
      
     storeTextElement.setAttribute('id', store.storeId)
     storeTextElement.classList.add('clickable')
     storeElement.appendChild(storeTextElement)
-
-
-
-
 
     return storeElement
 }
@@ -67,29 +66,29 @@ const generateSelectStoreDOM = (store) => {
 
 
 const renderStore = (store) => {
-    const storesElement = document.querySelector('#stores')
-    storesElement.innerHTML = ''
-
+    const pageMainElement = document.querySelector('main')
+    
     const storeElement = generateStoreDOM(store)
-    storesElement.appendChild(storeElement)   
+    
+    pageMainElement.appendChild(storeElement)   
     const holidays = store[0].openingHours.exceptionHours
     setSelectedStoreHolidays(holidays)
     
     if (filteredHoliday !== null ) { 
         
         const holidayHoursElement = generateStorehoursHolidayDOM()
-        storesElement.appendChild(holidayHoursElement)
+        pageMainElement.appendChild(holidayHoursElement)
         
     } else {
         const weekday = checkDayOfTheWeek()
         if (store[0].openingHours.regularHours[weekday].openingTime === "") {
             const openingHours = 'This store is closed all day on this date'
             const openingHoursElement = generateStoreOpeningHoursDOM(openingHours)
-            storesElement.appendChild(openingHoursElement)
+            pageMainElement.appendChild(openingHoursElement)
         } else {
             const openingHours = `This store is open on this date between ${store[0].openingHours.regularHours[weekday].openingTime} and ${store[0].openingHours.regularHours[weekday].closingTime}`
             const openingHoursElement = generateStoreOpeningHoursDOM(openingHours)
-            storesElement.appendChild(openingHoursElement)
+            pageMainElement.appendChild(openingHoursElement)
         }
         
     }
@@ -101,12 +100,12 @@ const selectThisStore =(id, stores)=> {
 }
 
 const renderStores = (stores) => {
-    const storesElement = document.querySelector('#stores')
-    storesElement.innerHTML = ''
+    const pageMainElement = document.querySelector('main')
+    // storesElement.innerHTML = ''
 
     stores.forEach((store) => {
         const storeElement = generateSelectStoreDOM(store)
-        storesElement.appendChild(storeElement)
+        pageMainElement.appendChild(storeElement)
 
     })
     const clickableElements = document.querySelectorAll('.clickable')
@@ -120,19 +119,19 @@ const renderStores = (stores) => {
 }
 
 const renderNoStoresFound =()=> {
-    const noStoresFoundElement = document.querySelector('#stores')
-    noStoresFoundElement.innerHTML = ''
+    const pageMainElement = document.querySelector('main')
+    // noStoresFoundElement.innerHTML = ''
     const searchAgainElement = document.createElement('div')
     const searchAgainTextElement = document.createElement('h1')
     const searchInput = document.createElement('input')
     searchAgainTextElement.textContent = 'No stores Found. Search Again'
-    noStoresFoundElement.appendChild(searchAgainElement)
+    pageMainElement.appendChild(searchAgainElement)
     searchAgainElement.appendChild(searchAgainTextElement)
     searchAgainElement.appendChild(searchInput)
     console.log('no stores found')
 }
 
-export { renderStores, renderStore, renderNoStoresFound }
+export { renderStores, renderStore, renderNoStoresFound, generateHeaderDOM }
 
 
 
