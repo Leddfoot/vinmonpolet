@@ -10,17 +10,20 @@ const setSelectedStoreHolidays = (holidayDates) => {
 
 //used only for current time, NOT DATE
 var todayTime = new Date();
-var time = todayTime.getHours() + ":" + todayTime.getMinutes() + ":" + todayTime.getSeconds();
-// console.log(time)
+var time = todayTime.getHours() + ":" + todayTime.getMinutes() 
+var formattedTime = format(todayTime, 'HH:mm')
 
-// const today =format(new Date(),'yyyy.MM.dd');
-// console.log(today);
 
-const today =format(new Date('2021','4', '17'),'yyyy.MM.dd');
+const todayDate =format(new Date(),'yyyy.MM.dd');
+// const todayDate =format(new Date('2021','4', '17'),'yyyy.MM.dd');
+const formattedDate = format(new Date(), 'MM-dd-yyyy')
+console.log(formattedDate);
 
-const todayAsArray = today.split('.')
+
+
+const todayAsArray = todayDate.split('.')
 const convertedToday = `${todayAsArray[0]}-${todayAsArray[1]}-${todayAsArray[2]}`
-console.log(convertedToday);
+// console.log(convertedToday);
 
 const isTodayHoliday = (selectedStoreHolidays) => {
  
@@ -55,4 +58,4 @@ const checkDayOfTheWeek = function (){
 
 
 
-export { setSelectedStoreHolidays, isTodayHoliday, filteredHoliday, checkDayOfTheWeek }
+export { setSelectedStoreHolidays, isTodayHoliday, filteredHoliday, checkDayOfTheWeek, formattedTime, formattedDate }
