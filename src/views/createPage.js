@@ -1,42 +1,6 @@
 import { setSelectedStoreHolidays, filteredHoliday, checkDayOfTheWeek, formattedTime, formattedDate } from 'components/dateCalculations'
 
-
-
-
 const pageMainElement = document.querySelector('main')
-
-// const testcontainer = document.createElement('div')
-// const testChild = document.createElement('h1')
-// testChild.innerHTML = 'zzzzzzzzzzzzzzzzz'
-
-// pageMainElement.appendChild(testcontainer)
-// testcontainer.appendChild(testChild)
-// console.log(testcontainer)
-// if(testcontainer) {
-//     console.log('yes')
-// } else {
-//     console.log('no')
-// }
-// testcontainer.remove(testChild)
-
-
-
-
-
-
-
-
-
-
-
-
-
-const storeElement = document.createElement('span')    
-storeElement.setAttribute('id', 'store-element')
-const searchAgainElement = document.createElement('span')
-const timeAndDateElement = document.createElement('span')
-timeAndDateElement.setAttribute('id', 'time-and-date-element')
-
 
 const generateHeaderDOM = () => {
     const headerElement = document.createElement('header')
@@ -44,17 +8,17 @@ const generateHeaderDOM = () => {
     pageTitleElement.textContent = 'OH SH!T is my vinmonopolet open?&!*?'
     headerElement.appendChild(pageTitleElement)
 
-    return headerElement
-        
+    return headerElement        
 }
 
 const renderHeader =() => {
     const headerElement = generateHeaderDOM()
     pageMainElement.appendChild(headerElement)
-
 }
 
 const generateTimeAndDateDOM =()=> {
+    const timeAndDateElement = document.createElement('span')
+    timeAndDateElement.setAttribute('id', 'time-and-date-element')
     const timeElement = document.createElement('p')
     const dateElement = document.createElement('p')
     
@@ -63,15 +27,14 @@ const generateTimeAndDateDOM =()=> {
 
     timeAndDateElement.appendChild(timeElement)
     timeAndDateElement.appendChild(dateElement)
+
     return timeAndDateElement
 }
 
 const renderTimeAndDate =() => {
     const timeAndDateElement = generateTimeAndDateDOM()
     pageMainElement.appendChild(timeAndDateElement)
-
 }
-
 
 const generateSearchInputDOM =()=> {    
     const searchInputForm = document.createElement('form')
@@ -82,26 +45,18 @@ const generateSearchInputDOM =()=> {
     searchButtonElement.textContent = 'Search'
     searchInputForm.appendChild(searchInputElement)
     searchInputForm.appendChild(searchButtonElement)
+
     return searchInputForm
 }
 
 const renderSearchElement =()=> {
-    const searchInputForm = generateSearchInputDOM()
-    
+    const searchInputForm = generateSearchInputDOM()    
     pageMainElement.appendChild(searchInputForm)
 }
 
-
-
 const generateStoreDOM = (store) => {
-    console.log(store)    
-    let storeElement =document.getElementById('store-element')
-    if (storeElement !== null) {
-        storeElement.innerHTML = ''
-    }
-    
-    storeElement = document.createElement('span')
-    let storeTextElement = document.createElement('p')    
+    const storeElement = document.createElement('span')
+    const storeTextElement = document.createElement('p')    
     storeTextElement.textContent = `${store[0].storeName} is located at ${store[0].address.street}, ${store[0].address.postalCode} ${store[0].address.city}`        
     storeElement.appendChild(storeTextElement)
     
@@ -139,30 +94,22 @@ const generateStoreOpeningHoursDOM = (message) => {
 const renderStore = (store) => {
     const contentHolder = document.createElement('span')
     contentHolder.setAttribute('id', 'content-holder')
-
-    while(contentHolder.firstChild) {
-        contentHolder.removeChild(contentHolder.firstChild)
-    }
-
-//    storeElement = ''
     const storeElement = generateStoreDOM(store)
     pageMainElement.appendChild(contentHolder)
     contentHolder.appendChild(storeElement)   
     const holidays = store[0].openingHours.exceptionHours
     setSelectedStoreHolidays(holidays)
     
-    if (filteredHoliday !== null ) { 
-        
+    if (filteredHoliday !== null ) {         
         const holidayHoursElement = generateStorehoursHolidayDOM()
-        contentHolder.appendChild(holidayHoursElement)
-        
+        contentHolder.appendChild(holidayHoursElement)        
     } else {
         const weekday = checkDayOfTheWeek()
-        console.log(store[0])
         if (store[0].storeId === '801'){
             const openingHours = 'The E lager is not open to the public'
             const openingHoursElement = generateStoreOpeningHoursDOM(openingHours)
             contentHolder.appendChild(openingHoursElement)
+
             return
         }
 
@@ -179,13 +126,26 @@ const renderStore = (store) => {
     }
 }
 
+const generateSearchedForDOM = (searchTerm, numberOfPossibleMatches)=> {
+    const lineBreak = document.createElement('br')
+    const storeSearchedForElement = document.createElement('span')
+    const storeSearchedForSubElement = document.createElement('p')
+    storeSearchedForElement.textContent = `There are ${numberOfPossibleMatches} results that contain: ${searchTerm}`
+    storeSearchedForSubElement.textContent = `Contains: "${searchTerm}"`
+    storeSearchedForElement.appendChild(lineBreak)
+    storeSearchedForElement.appendChild(storeSearchedForSubElement)
+    storeSearchedForElement.appendChild(lineBreak)
+    
+    return storeSearchedForElement
+}
+
 const generateSelectStoreDOM = (store) => {
     const storeElement = document.createElement('span')
-    const storeTextElement = document.createElement('button')
+    const storeTextElement = document.createElement('button') 
+    const lineBreak = document.createElement('br')
     storeTextElement.textContent = store.storeName 
-
-     
-    storeTextElement.setAttribute('id', store.storeId)
+    storeTextElement.appendChild(lineBreak)
+    storeTextElement.setAttribute('id', store.storeId)    
     storeTextElement.classList.add('clickable')
     storeElement.appendChild(storeTextElement)
 
@@ -193,73 +153,53 @@ const generateSelectStoreDOM = (store) => {
 }
 
 const selectThisStore =(id, stores)=> {
-    let filteredStore = stores.filter(store => store.storeId === id)
-    clearExistingContent()
+    let filteredStore = stores.filter(store => store.storeId === id)    
     renderStore(filteredStore)
+    clearExistingContent()
 }
 
-const renderStores = (stores) => {
+const renderStores = (stores, searchTerm, numberOfPossibleMatches) => {
     const pageMainElement = document.querySelector('main')
     let contentHolder = document.createElement('div')
     contentHolder.setAttribute('id', 'content-holder')
     pageMainElement.appendChild(contentHolder)
-    // storesElement.innerHTML = ''
+    const SearchedForElement =generateSearchedForDOM(searchTerm, numberOfPossibleMatches)
+    contentHolder.appendChild(SearchedForElement)
 
     stores.forEach((store) => {
-        const storeElement = generateSelectStoreDOM(store)
+        let storeElement = generateSelectStoreDOM(store)
         contentHolder.appendChild(storeElement)
-
     })
+    
     const clickableElements = document.querySelectorAll('.clickable')
   
     clickableElements.forEach((button)=> {
     button.addEventListener("click", (event) => {
-        selectThisStore(event.target.id, stores)
+        selectThisStore(event.target.id, stores) 
     })
     })
    
 }
 
-const renderNoStoresFound =()=> {  
-
+const renderNoStoresFound =()=> { 
     let contentHolder = document.createElement('div')
-    contentHolder.setAttribute('id', 'content-holder')
-  
+    contentHolder.setAttribute('id', 'content-holder')  
     const searchAgainTextElement = document.createElement('h1')    
     searchAgainTextElement.textContent = 'No stores Found. Search Again'
     contentHolder.appendChild(searchAgainTextElement)
-    pageMainElement.appendChild(contentHolder)
- 
+    pageMainElement.appendChild(contentHolder) 
 }
 
 const clearExistingContent = () => {
     let contentHolder = document.getElementById('content-holder')
-    // console.log(contentHolder) 
     if (contentHolder) {
-        // console.log('content holder exists')
         if (contentHolder.firstChild){
-            // console.log('first child exists')
             while(contentHolder.firstChild !== null) {
                         contentHolder.removeChild(contentHolder.firstChild)
                     }
                     contentHolder.parentElement.removeChild(contentHolder)
         }
     } 
-
-    let storeElement = document.getElementById('store-element')
-    // console.log(contentHolder) 
-    if (storeElement) {
-        // console.log('content holder exists')
-        if (storeElement.firstChild){
-            // console.log('first child exists')
-            while(storeElement.firstChild !== null) {
-                storeElement.removeChild(storeElement.firstChild)
-                    }
-                    storeElement.parentElement.removeChild(storeElement)
-        }
-    } 
-        
-    
 }
 
 

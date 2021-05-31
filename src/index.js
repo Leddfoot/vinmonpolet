@@ -1,35 +1,11 @@
-function checkScope() {
-  let i = 'function scope';
-  if (true) {
-    let i = 'block scope';
-    // console.log('Block scope i is: ', i);
-  }
-  console.log('Function scope i is: ', i);
-  return i;
-}
-
-checkScope()
-
-
-
-
-
-
-
-// import createHTML from 'components/createHTML';
 'use strict'
 import { getStoreByName, getallStores } from 'components/requests'
-import { getUserSearchInput } from 'components/getUserInput'
 import { renderStores, renderStore, renderNoStoresFound, renderHeader, renderSearchElement, renderTimeAndDate, clearExistingContent } from 'views/createPage'
 let searchTerm 
-let possibleStores = {}
 let entireListOfStores = {}
 let haveDownloadedEntireList = false
 
 import 'main.css';
-
-console.log('YOU ARE HERE...IF YOU CHOOSE A STORE FROM THE LIST OF MULTIPLE POSSIBILITIES, IT IS NOT BEING REMOVE')
-
 
 renderHeader()
 renderTimeAndDate()
@@ -44,27 +20,24 @@ document.querySelector('#main-search-form').addEventListener('submit', function 
   e.preventDefault()
   mainSearchInputElement.text = ''
   searchTerm = e.target.elements.searchTerm.value
-  console.log('YOU ARE HERE, CC VEST WITH EMPTY SPACES DOESNT WORK')
 
-  searchTerm = searchTerm.trim().split(" ").join("")
-  // console.log(haveDownloadedEntireList)
+  searchTerm = searchTerm.trim()
   if (haveDownloadedEntireList === false) {
     findStoreData(searchTerm)
+    
   } else {
-          const possibleMatches = filterResults(entireListOfStores, searchTerm)
-      if (possibleMatches.length === 1){
-        clearExistingContent()
-        renderStore(possibleMatches)
-      } else if (possibleMatches.length > 1) {
-        clearExistingContent()
-        renderStores(possibleMatches)
-      } else {
-        clearExistingContent()
-        renderNoStoresFound()
-        // 
-      }
-    // console.log(entireListOfStores)
-    // filterResults(entireListOfStores,searchTerm)
+      //     const possibleMatches = filterResults(entireListOfStores, searchTerm)
+      // if (possibleMatches.length === 1){
+        console.log('after we have gootten whole list shit goes here')
+      //   clearExistingContent()
+      //   renderStore(possibleMatches)
+      // } else if (possibleMatches.length > 1) {
+      //   clearExistingContent()
+      //   renderStores(possibleMatches)
+      // } else {
+      //   clearExistingContent()
+      //   renderNoStoresFound()
+      // }
   }
   
  })
@@ -78,11 +51,14 @@ document.querySelector('#main-search-form').addEventListener('submit', function 
     clearExistingContent()
     renderStore(data)
   }
-  else if (data.length > 1)  {
-    
-    possibleStores = data
+  else if (data.length > 1)  {  
+    let numberOfPossibleMatches = 0
+    data.forEach(store => {
+      numberOfPossibleMatches +=1
+      store.searchedFor = searchTerm
+    }) 
     clearExistingContent()
-    renderStores(possibleStores)
+    renderStores(data, searchTerm, numberOfPossibleMatches)
   }  
   else {
     getallStores(searchTerm)
@@ -121,6 +97,7 @@ const filterResults = function (stores, searchTerm){
     return isCityMatch || isStreetAddressMatch || isPostalCodeMatch || isStoreNameMatch
   })
 }
+
 
 
 
