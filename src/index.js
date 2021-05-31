@@ -4,6 +4,7 @@ import { renderStores, renderStore, renderNoStoresFound, renderHeader, renderSea
 let searchTerm 
 let entireListOfStores = {}
 let haveDownloadedEntireList = false
+let possibleMatches = []
 
 import 'main.css';
 
@@ -23,21 +24,10 @@ document.querySelector('#main-search-form').addEventListener('submit', function 
 
   searchTerm = searchTerm.trim()
   if (haveDownloadedEntireList === false) {
-    findStoreData(searchTerm)
-    
+     findStoreData(searchTerm)    
   } else {
-      //     const possibleMatches = filterResults(entireListOfStores, searchTerm)
-      // if (possibleMatches.length === 1){
-        console.log('after we have gootten whole list shit goes here')
-      //   clearExistingContent()
-      //   renderStore(possibleMatches)
-      // } else if (possibleMatches.length > 1) {
-      //   clearExistingContent()
-      //   renderStores(possibleMatches)
-      // } else {
-      //   clearExistingContent()
-      //   renderNoStoresFound()
-      // }
+    possibleMatches = filterResults(entireListOfStores, searchTerm)  
+    handlePossibleMatches(possibleMatches)
   }
   
  })
@@ -47,7 +37,6 @@ document.querySelector('#main-search-form').addEventListener('submit', function 
     getStoreByName(searchTerm)
 .then(data => {
   if (data.length === 1) {
-    console.log(data)
     clearExistingContent()
     renderStore(data)
   }
@@ -63,25 +52,38 @@ document.querySelector('#main-search-form').addEventListener('submit', function 
   else {
     getallStores(searchTerm)
      .then(data => {
-       console.log('have gotten whole list now')
+      console.log('have downloaded entire list')
+      console.log(data)
+
       haveDownloadedEntireList = true
-      entireListOfStores = data  
-      const possibleMatches = filterResults(entireListOfStores, searchTerm)
-      if (possibleMatches.length === 1){
-        clearExistingContent()
-        renderStore(possibleMatches)
-      } else if (possibleMatches.length > 1) {
-        clearExistingContent()
-        renderStores(possibleMatches)
-      } else {
-        clearExistingContent()
-        renderNoStoresFound()
-      }
-          
+      entireListOfStores = data             
+      possibleMatches = filterResults(entireListOfStores, searchTerm)       
+      handlePossibleMatches(possibleMatches)
      })
-  } 
-})
-  
+    } 
+  })  
+}
+
+const handlePossibleMatches = (possibleMatches) => {
+  if (possibleMatches.length === 1){
+    clearExistingContent()
+    renderStore(possibleMatches)
+  } else if (possibleMatches.length > 1) {
+
+    clearExistingContent()
+    let numberOfPossibleMatches = 0
+    
+    possibleMatches.forEach(store => {
+      numberOfPossibleMatches +=1
+      store.searchedFor = searchTerm
+    }) 
+
+    renderStores(possibleMatches, searchTerm, numberOfPossibleMatches)
+
+  } else {
+    clearExistingContent()
+    renderNoStoresFound()
+  }
 }
 
 
