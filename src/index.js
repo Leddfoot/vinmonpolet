@@ -4,7 +4,9 @@ import { renderStores, renderStore, renderNoStoresFound, renderHeader, renderSea
 let searchTerm 
 let entireListOfStores = {}
 let haveDownloadedEntireList = false
-let possibleMatches = []
+let possibleMatches
+let searchTermIsMultiple = false
+
 
 import 'main.css';
 
@@ -15,74 +17,110 @@ renderSearchElement()
 const mainSearchInputElement = document.querySelector('#main-search-input')
 mainSearchInputElement.setAttribute('placeholder', 'Enter a city, store name, or postal code')
 mainSearchInputElement.setAttribute('name', 'searchTerm')
+const mainSearchInputForm = document.querySelector('#main-search-form')
 
-
-document.querySelector('#main-search-form').addEventListener('submit', function (e) {
+mainSearchInputForm.addEventListener('submit', function (e) {
   e.preventDefault()
-  mainSearchInputElement.text = ''
-  searchTerm = e.target.elements.searchTerm.value
-
-  searchTerm = searchTerm.trim()
-  if (haveDownloadedEntireList === false) {
-     findStoreData(searchTerm)    
-  } else {
-    possibleMatches = filterResults(entireListOfStores, searchTerm)  
-    handlePossibleMatches(possibleMatches)
-  }
-  
- })
-
- 
- const findStoreData = (searchTerm)=> {
-    getStoreByName(searchTerm)
-.then(data => {
-  if (data.length === 1) {
-    clearExistingContent()
-    renderStore(data)
-  }
-  else if (data.length > 1)  {  
-    let numberOfPossibleMatches = 0
-    data.forEach(store => {
-      numberOfPossibleMatches +=1
-      store.searchedFor = searchTerm
-    }) 
-    clearExistingContent()
-    renderStores(data, searchTerm, numberOfPossibleMatches)
+  if (e.target.elements.searchTerm.value === ''){
+    return
   }  
-  else {
-    getallStores(searchTerm)
-     .then(data => {
-      console.log('have downloaded entire list')
-      console.log(data)
+  searchTermIsMultiple = false
+  searchTerm = e.target.elements.searchTerm.value
+  searchTerm = searchTerm.trim()
+  if (!searchTerm.includes(' ')) {
+    handleSingleQuery(searchTerm)
+  } else {
+        let multipleSearchTerms = handleMultipleSearchTerms.divideSearchTerms(searchTerm)
+        getMultiFetchesTest(multipleSearchTerms)
+  }
+})
 
-      haveDownloadedEntireList = true
-      entireListOfStores = data             
-      possibleMatches = filterResults(entireListOfStores, searchTerm)       
-      handlePossibleMatches(possibleMatches)
-     })
-    } 
-  })  
+// you are here....  
+//todo move haveDownloadedEntireList === true into the event listener above to prevent additional api calls
+//todo rename variables in getMultiFetchesTest
+//todo change button click to entire button (display block not working yet, may have to do it in css)
+
+const handleSingleQuery = function (searchTerm){
+  if (haveDownloadedEntireList === false) {
+    
+    getStoreByName(searchTerm)
+    .then((result) => { 
+      handlePossibleMatches(result)
+    }).catch((err) => {
+     console.log(`Error: ${err}`)
+    })
+        
+  } else {
+    possibleMatches = []
+    possibleMatches = filterResults(entireListOfStores, searchTerm)
+    handlePossibleMatches(possibleMatches)
+  } 
 }
 
+const handleMultipleSearchTerms = (function () {
+  return {
+    divideSearchTerms: function () {
+      const multipleSearchTerms = searchTerm.split(' ')
+      return multipleSearchTerms
+      
+    }
+  }
+})()
+
+function getMultiFetchesTest (multipleSearchTerms) {
+  searchTermIsMultiple = true
+  let array = new Array;
+  let fetches = [];
+  for (let i = 0; i < multipleSearchTerms.length; i++) {
+    fetches.push(
+      getStoreByName(multipleSearchTerms[i])
+      .then(result => {
+        result.forEach(store => {
+          store.searchedFor = multipleSearchTerms[i]
+        });
+            array.push(result);
+          }
+      )
+      .catch(status, err => {return console.log(status, err);})
+    );
+  }
+  Promise.all(fetches).then(function() { 
+    let newArray = [].concat(...array);
+    handlePossibleMatches(newArray)
+  });
+  }
+
+
+
+
+
 const handlePossibleMatches = (possibleMatches) => {
+  // console.log(possibleMatches.length)
+  clearExistingContent()
+  // return
+  // debugger
   if (possibleMatches.length === 1){
-    clearExistingContent()
+    // clearExistingContent()
     renderStore(possibleMatches)
   } else if (possibleMatches.length > 1) {
-
-    clearExistingContent()
-    let numberOfPossibleMatches = 0
-    
-    possibleMatches.forEach(store => {
-      numberOfPossibleMatches +=1
-      store.searchedFor = searchTerm
-    }) 
-
-    renderStores(possibleMatches, searchTerm, numberOfPossibleMatches)
-
-  } else {
-    clearExistingContent()
+    // // clearExistingContent()  
+    // console.log(possibleMatches)
+        // renderStores(possibleMatches)
+    renderStores(possibleMatches, searchTerm)
+  } else if (haveDownloadedEntireList === true ){
+    // clearExistingContent()
     renderNoStoresFound()
+  } else {
+    getallStores(searchTerm)
+    .then((result) => {
+    console.log('have downloaded entire list')
+    haveDownloadedEntireList = true
+    entireListOfStores = result             
+    possibleMatches = filterResults(entireListOfStores, searchTerm)       
+    handlePossibleMatches(possibleMatches)
+    }).catch((err) => {
+    console.log(`Error: ${err}`)
+    })
   }
 }
 
@@ -99,6 +137,10 @@ const filterResults = function (stores, searchTerm){
     return isCityMatch || isStreetAddressMatch || isPostalCodeMatch || isStoreNameMatch
   })
 }
+
+const checkForMultipleSearchTerms =()=> searchTermIsMultiple
+
+export {checkForMultipleSearchTerms}
 
 
 

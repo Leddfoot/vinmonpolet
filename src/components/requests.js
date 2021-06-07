@@ -18,7 +18,9 @@ export async function getStoreByName(storeCity) {
       },
   
     });
+    
     return response.json(); 
+
 
   }
 

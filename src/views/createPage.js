@@ -1,5 +1,5 @@
 import { setSelectedStoreHolidays, filteredHoliday, checkDayOfTheWeek, formattedTime, formattedDate } from 'components/dateCalculations'
-
+import { checkForMultipleSearchTerms } from '../index'
 const pageMainElement = document.querySelector('main')
 
 const generateHeaderDOM = () => {
@@ -126,28 +126,28 @@ const renderStore = (store) => {
     }
 }
 
-const generateSearchedForDOM = (searchTerm, numberOfPossibleMatches)=> {
-    const lineBreak = document.createElement('br')
-    const storeSearchedForElement = document.createElement('span')
-    const storeSearchedForSubElement = document.createElement('p')
-    storeSearchedForElement.textContent = `There are ${numberOfPossibleMatches} results that contain: ${searchTerm}`
-    storeSearchedForSubElement.textContent = `Contains: "${searchTerm}"`
-    storeSearchedForElement.appendChild(lineBreak)
-    storeSearchedForElement.appendChild(storeSearchedForSubElement)
-    storeSearchedForElement.appendChild(lineBreak)
-    
-    return storeSearchedForElement
+const generateSelectStoreDOMWithSearchTerm = (store) => {
+    let storeElement = document.createElement('button')
+    storeElement.setAttribute('display', 'block')
+    let storeTextElement = document.createElement('p') 
+    storeTextElement.textContent =  `${store.storeName} Contains: ${store.searchedFor}`  
+    storeTextElement.setAttribute('id', store.storeId)    
+    storeTextElement.classList.add('clickable')
+    storeElement.appendChild(storeTextElement) 
+    let searchedForElement = document.createElement('p')
+    searchedForElement.textContent = `Contains: ${store.searchedFor}` 
+    storeElement.appendChild(searchedForElement)
+
+    return storeElement
 }
 
 const generateSelectStoreDOM = (store) => {
     const storeElement = document.createElement('span')
     const storeTextElement = document.createElement('button') 
-    const lineBreak = document.createElement('br')
-    storeTextElement.textContent = store.storeName 
-    storeTextElement.appendChild(lineBreak)
+    storeTextElement.textContent = store.storeName   
     storeTextElement.setAttribute('id', store.storeId)    
     storeTextElement.classList.add('clickable')
-    storeElement.appendChild(storeTextElement)
+    storeElement.appendChild(storeTextElement)  
 
     return storeElement
 }
@@ -158,18 +158,32 @@ const selectThisStore =(id, stores)=> {
     clearExistingContent()
 }
 
-const renderStores = (stores, searchTerm, numberOfPossibleMatches) => {
+const renderStores = (stores) => {
+    // clearExistingContent()
     const pageMainElement = document.querySelector('main')
     let contentHolder = document.createElement('div')
     contentHolder.setAttribute('id', 'content-holder')
     pageMainElement.appendChild(contentHolder)
-    const SearchedForElement =generateSearchedForDOM(searchTerm, numberOfPossibleMatches)
-    contentHolder.appendChild(SearchedForElement)
+    let addSearchedFor = checkForMultipleSearchTerms()
+    console.log('addSearchedFor: ', addSearchedFor);
 
-    stores.forEach((store) => {
-        let storeElement = generateSelectStoreDOM(store)
-        contentHolder.appendChild(storeElement)
+    if (addSearchedFor) {
+        stores.forEach((store) => {
+            console.log('starting that dangerous shit');
+            let storeElement = generateSelectStoreDOMWithSearchTerm(store)
+            contentHolder.appendChild(storeElement)
     })
+    } else {
+        stores.forEach((store) => {
+            let storeElement = generateSelectStoreDOM(store)
+            contentHolder.appendChild(storeElement)
+    })
+    }
+ 
+
+
+ 
+
     
     const clickableElements = document.querySelectorAll('.clickable')
   
