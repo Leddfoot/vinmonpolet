@@ -128,7 +128,7 @@ const renderStore = (store) => {
 
 const generateSelectStoreDOMWithSearchTerm = (store) => {
     let storeElement = document.createElement('button')
-    storeElement.setAttribute('display', 'block')
+    storeElement.setAttribute("style","display:block")
     let storeTextElement = document.createElement('p') 
     storeTextElement.textContent =  `${store.storeName} Contains: ${store.searchedFor}`  
     storeTextElement.setAttribute('id', store.storeId)    
@@ -159,17 +159,14 @@ const selectThisStore =(id, stores)=> {
 }
 
 const renderStores = (stores) => {
-    // clearExistingContent()
     const pageMainElement = document.querySelector('main')
     let contentHolder = document.createElement('div')
     contentHolder.setAttribute('id', 'content-holder')
     pageMainElement.appendChild(contentHolder)
     let addSearchedFor = checkForMultipleSearchTerms()
-    console.log('addSearchedFor: ', addSearchedFor);
 
     if (addSearchedFor) {
         stores.forEach((store) => {
-            console.log('starting that dangerous shit');
             let storeElement = generateSelectStoreDOMWithSearchTerm(store)
             contentHolder.appendChild(storeElement)
     })

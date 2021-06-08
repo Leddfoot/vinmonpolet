@@ -23,7 +23,6 @@ console.log(formattedDate);
 
 const todayAsArray = todayDate.split('.')
 const convertedToday = `${todayAsArray[0]}-${todayAsArray[1]}-${todayAsArray[2]}`
-// console.log(convertedToday);
 
 const isTodayHoliday = (selectedStoreHolidays) => {
  

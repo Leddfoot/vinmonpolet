@@ -37,7 +37,6 @@ mainSearchInputForm.addEventListener('submit', function (e) {
 
 // you are here....  
 //todo move haveDownloadedEntireList === true into the event listener above to prevent additional api calls
-//todo rename variables in getMultiFetchesTest
 //todo change button click to entire button (display block not working yet, may have to do it in css)
 
 const handleSingleQuery = function (searchTerm){
@@ -69,7 +68,7 @@ const handleMultipleSearchTerms = (function () {
 
 function getMultiFetchesTest (multipleSearchTerms) {
   searchTermIsMultiple = true
-  let array = new Array;
+  let temporaryArray = new Array;
   let fetches = [];
   for (let i = 0; i < multipleSearchTerms.length; i++) {
     fetches.push(
@@ -78,15 +77,15 @@ function getMultiFetchesTest (multipleSearchTerms) {
         result.forEach(store => {
           store.searchedFor = multipleSearchTerms[i]
         });
-            array.push(result);
+        temporaryArray.push(result);
           }
       )
       .catch(status, err => {return console.log(status, err);})
     );
   }
   Promise.all(fetches).then(function() { 
-    let newArray = [].concat(...array);
-    handlePossibleMatches(newArray)
+    let combinedFetchArray = [].concat(...temporaryArray);
+    handlePossibleMatches(combinedFetchArray)
   });
   }
 
@@ -95,20 +94,12 @@ function getMultiFetchesTest (multipleSearchTerms) {
 
 
 const handlePossibleMatches = (possibleMatches) => {
-  // console.log(possibleMatches.length)
   clearExistingContent()
-  // return
-  // debugger
   if (possibleMatches.length === 1){
-    // clearExistingContent()
     renderStore(possibleMatches)
   } else if (possibleMatches.length > 1) {
-    // // clearExistingContent()  
-    // console.log(possibleMatches)
-        // renderStores(possibleMatches)
     renderStores(possibleMatches, searchTerm)
   } else if (haveDownloadedEntireList === true ){
-    // clearExistingContent()
     renderNoStoresFound()
   } else {
     getallStores(searchTerm)
