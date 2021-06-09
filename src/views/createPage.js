@@ -1,5 +1,5 @@
 import { setSelectedStoreHolidays, filteredHoliday, checkDayOfTheWeek, formattedTime, formattedDate } from 'components/dateCalculations'
-import { checkForMultipleSearchTerms } from '../index'
+import { checkForMultipleSearchTerms, getNext10OrFewerResults, listToPaginate } from '../index'
 const pageMainElement = document.querySelector('main')
 
 const generateHeaderDOM = () => {
@@ -128,9 +128,12 @@ const renderStore = (store) => {
 
 const generateSelectStoreDOMWithSearchTerm = (store) => {
     let storeElement = document.createElement('button')
+    // https://css-tricks.com/a-complete-guide-to-links-and-buttons/#breakout-buttons
+
+    // needed also below generateSelectStoreDOM?maybe?
     storeElement.setAttribute("style","display:block")
-    let storeTextElement = document.createElement('p') 
-    storeTextElement.textContent =  `${store.storeName} Contains: ${store.searchedFor}`  
+    let storeTextElement = document.createElement('p')  
+    storeTextElement.textContent =  `${store.storeName}`  
     storeTextElement.setAttribute('id', store.storeId)    
     storeTextElement.classList.add('clickable')
     storeElement.appendChild(storeTextElement) 
@@ -158,29 +161,29 @@ const selectThisStore =(id, stores)=> {
     clearExistingContent()
 }
 
-const renderStores = (stores) => {
+const renderStores = (stores, moreResultsToDisplay) => {  
+    let showMoreResultsButtonExists = document.getElementById('show-more-results')
+    if (showMoreResultsButtonExists !== null) {
+        showMoreResultsButtonExists.remove()
+    }
+    
     const pageMainElement = document.querySelector('main')
     let contentHolder = document.createElement('div')
     contentHolder.setAttribute('id', 'content-holder')
     pageMainElement.appendChild(contentHolder)
     let addSearchedFor = checkForMultipleSearchTerms()
 
-    if (addSearchedFor) {
-        stores.forEach((store) => {
-            let storeElement = generateSelectStoreDOMWithSearchTerm(store)
-            contentHolder.appendChild(storeElement)
-    })
-    } else {
-        stores.forEach((store) => {
-            let storeElement = generateSelectStoreDOM(store)
-            contentHolder.appendChild(storeElement)
-    })
-    }
- 
-
-
- 
-
+        if (addSearchedFor) {
+            stores.forEach((store) => {
+                let storeElement = generateSelectStoreDOMWithSearchTerm(store)
+                contentHolder.appendChild(storeElement)
+        })
+        } else {
+            stores.forEach((store) => {
+                let storeElement = generateSelectStoreDOM(store)
+                contentHolder.appendChild(storeElement)
+        })
+    } 
     
     const clickableElements = document.querySelectorAll('.clickable')
   
@@ -189,9 +192,21 @@ const renderStores = (stores) => {
         selectThisStore(event.target.id, stores) 
     })
     })
-   
+
+    if (moreResultsToDisplay) {
+        let showMoreResultsButton = document.createElement('button')
+        showMoreResultsButton.setAttribute('id', 'show-more-results')
+        showMoreResultsButton.textContent = 'SHOW MORE RESULTS'
+        contentHolder.appendChild(showMoreResultsButton) 
+        showMoreResultsButton.addEventListener('click', ()=> {
+            getNext10OrFewerResults()
+        } )
+    }
 }
 
+
+
+  
 const renderNoStoresFound =()=> { 
     let contentHolder = document.createElement('div')
     contentHolder.setAttribute('id', 'content-holder')  
