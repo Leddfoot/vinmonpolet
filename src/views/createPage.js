@@ -2,6 +2,34 @@ import { setSelectedStoreHolidays, filteredHoliday, checkDayOfTheWeek, formatted
 import { checkForMultipleSearchTerms, getNext10OrFewerResults, listToPaginate } from '../index'
 const pageMainElement = document.querySelector('main')
 
+// const renderTestElement = () =>{
+//     const dynamicContentHolder = document.createElement('span')
+//     pageMainElement.appendChild(dynamicContentHolder)
+    
+    // const bullshitArray = ['bullshit', 'bullshit','bullshit','bullshit','bullshit','bullshit','bullshit','bullshit','bullshit',]
+    // bullshitArray.forEach((shit) => {
+    //     let bullshitElement = document.createElement('span')
+    //     bullshitElement.textContent = shit
+    //     dynamicContentHolder.appendChild(bullshitElement)
+    //     const bullshitBreak = document.createElement('br')
+    //     dynamicContentHolder.appendChild(bullshitBreak)
+    // })
+    // const x = dynamicContentHolder.hasChildNodes()
+    // console.log('x: ', x);
+
+    // if (dynamicContentHolder !== undefined) {
+    //     bullshitArray.forEach((shit) => {
+    //         let bullshitElement = document.createElement('span')
+    //         bullshitElement.textContent = shit
+    //         dynamicContentHolder.appendChild(bullshitElement)
+    //         const bullshitBreak = document.createElement('br')
+    //         dynamicContentHolder.appendChild(bullshitBreak)
+    //     })
+    // }
+// }
+
+// renderTestElement()
+
 const generateHeaderDOM = () => {
     const headerElement = document.createElement('header')
     const pageTitleElement = document.createElement('span')
@@ -92,6 +120,9 @@ const generateStoreOpeningHoursDOM = (message) => {
 }
 
 const renderStore = (store) => {
+    
+    clearExistingContent()
+    console.log('store: ', store);
     const contentHolder = document.createElement('span')
     contentHolder.setAttribute('id', 'content-holder')
     const storeElement = generateStoreDOM(store)
@@ -158,7 +189,7 @@ const generateSelectStoreDOM = (store) => {
 const selectThisStore =(id, stores)=> {
     let filteredStore = stores.filter(store => store.storeId === id)    
     renderStore(filteredStore)
-    clearExistingContent()
+    // clearExistingContent()
 }
 
 const renderStores = (stores, moreResultsToDisplay) => {  
@@ -166,11 +197,24 @@ const renderStores = (stores, moreResultsToDisplay) => {
     if (showMoreResultsButtonExists !== null) {
         showMoreResultsButtonExists.remove()
     }
-    
-    const pageMainElement = document.querySelector('main')
-    let contentHolder = document.createElement('div')
-    contentHolder.setAttribute('id', 'content-holder')
-    pageMainElement.appendChild(contentHolder)
+    let contentHolder
+
+    let contentHolderAlreadyExists = !!document.getElementById('content-holder')
+    console.log('contentHolderAlreadyExists: ', contentHolderAlreadyExists);
+
+    if (contentHolderAlreadyExists) {
+        contentHolder = document.getElementById('content-holder')
+    } else {
+        console.log('no')
+        contentHolder = document.createElement('span')
+        contentHolder.setAttribute('id', 'content-holder')
+        pageMainElement.appendChild(contentHolder)
+    }
+
+    // let contentHolder = document.createElement('span')
+    // contentHolder.setAttribute('id', 'content-holder')
+    // pageMainElement.appendChild(contentHolder)
+
     let addSearchedFor = checkForMultipleSearchTerms()
 
         if (addSearchedFor) {
@@ -208,7 +252,7 @@ const renderStores = (stores, moreResultsToDisplay) => {
 
   
 const renderNoStoresFound =()=> { 
-    let contentHolder = document.createElement('div')
+    let contentHolder = document.createElement('span')
     contentHolder.setAttribute('id', 'content-holder')  
     const searchAgainTextElement = document.createElement('h1')    
     searchAgainTextElement.textContent = 'No stores Found. Search Again'

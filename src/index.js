@@ -1454,7 +1454,7 @@ mainSearchInputElement.setAttribute('name', 'searchTerm')
 const mainSearchInputForm = document.querySelector('#main-search-form')
 
 mainSearchInputForm.addEventListener('submit', function (e) {
-
+  clearExistingContent()
   
   e.preventDefault()
   if (e.target.elements.searchTerm.value === ''){
@@ -1501,12 +1501,13 @@ const filterMultiSearches = (multipleSearchTerms) => {
 }
 
 // you are here....  
-// you are working in get next 10 results, you have to have a way to store the potential next stores
+//todo FIRST.....TEST RECENT CHANGES .....CLEANUP
 
 
 //todo change button click to entire button (display block not working yet, may have to do it in css)
-//todo limit result display to ten at a time
+//todo make a store or multiple stores your home store
 //todo more date/holiday testing
+//todo change  the store is open on this date to : store is open/closed ...hours are/were
 
 const handleSingleQuery = function (searchTerm){
     getStoreByName(searchTerm)
@@ -1551,7 +1552,7 @@ function getMultiFetchesTest (multipleSearchTerms) {
   }
 
 const handlePossibleMatches = (possibleMatches) => {
-  clearExistingContent()
+  // clearExistingContent()
   if (possibleMatches.length === 1){
     renderStore(possibleMatches)
   } else if (possibleMatches.length > 1 && possibleMatches.length <= 10) {
