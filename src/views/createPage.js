@@ -2,33 +2,7 @@ import { setSelectedStoreHolidays, filteredHoliday, checkDayOfTheWeek, formatted
 import { checkForMultipleSearchTerms, getNext10OrFewerResults, listToPaginate } from '../index'
 const pageMainElement = document.querySelector('main')
 
-// const renderTestElement = () =>{
-//     const dynamicContentHolder = document.createElement('span')
-//     pageMainElement.appendChild(dynamicContentHolder)
-    
-    // const bullshitArray = ['bullshit', 'bullshit','bullshit','bullshit','bullshit','bullshit','bullshit','bullshit','bullshit',]
-    // bullshitArray.forEach((shit) => {
-    //     let bullshitElement = document.createElement('span')
-    //     bullshitElement.textContent = shit
-    //     dynamicContentHolder.appendChild(bullshitElement)
-    //     const bullshitBreak = document.createElement('br')
-    //     dynamicContentHolder.appendChild(bullshitBreak)
-    // })
-    // const x = dynamicContentHolder.hasChildNodes()
-    // console.log('x: ', x);
-
-    // if (dynamicContentHolder !== undefined) {
-    //     bullshitArray.forEach((shit) => {
-    //         let bullshitElement = document.createElement('span')
-    //         bullshitElement.textContent = shit
-    //         dynamicContentHolder.appendChild(bullshitElement)
-    //         const bullshitBreak = document.createElement('br')
-    //         dynamicContentHolder.appendChild(bullshitBreak)
-    //     })
-    // }
-// }
-
-// renderTestElement()
+let temporaryStoreHolder
 
 const generateHeaderDOM = () => {
     const headerElement = document.createElement('header')
@@ -120,12 +94,12 @@ const generateStoreOpeningHoursDOM = (message) => {
 }
 
 const renderStore = (store) => {
-    
+    temporaryStoreHolder = store
     clearExistingContent()
-    console.log('store: ', store);
+    store = temporaryStoreHolder
     const contentHolder = document.createElement('span')
     contentHolder.setAttribute('id', 'content-holder')
-    const storeElement = generateStoreDOM(store)
+    const storeElement = generateStoreDOM(temporaryStoreHolder)
     pageMainElement.appendChild(contentHolder)
     contentHolder.appendChild(storeElement)   
     const holidays = store[0].openingHours.exceptionHours
@@ -155,9 +129,11 @@ const renderStore = (store) => {
         }
         
     }
+    
 }
 
 const generateSelectStoreDOMWithSearchTerm = (store) => {
+    
     let storeElement = document.createElement('button')
     // https://css-tricks.com/a-complete-guide-to-links-and-buttons/#breakout-buttons
 
@@ -187,12 +163,13 @@ const generateSelectStoreDOM = (store) => {
 }
 
 const selectThisStore =(id, stores)=> {
+    clearExistingContent()
     let filteredStore = stores.filter(store => store.storeId === id)    
     renderStore(filteredStore)
-    // clearExistingContent()
+    
 }
 
-const renderStores = (stores, moreResultsToDisplay) => {  
+const renderStores = (stores, moreResultsToDisplay, currentListOfStores) => { 
     let showMoreResultsButtonExists = document.getElementById('show-more-results')
     if (showMoreResultsButtonExists !== null) {
         showMoreResultsButtonExists.remove()
@@ -200,20 +177,14 @@ const renderStores = (stores, moreResultsToDisplay) => {
     let contentHolder
 
     let contentHolderAlreadyExists = !!document.getElementById('content-holder')
-    console.log('contentHolderAlreadyExists: ', contentHolderAlreadyExists);
 
     if (contentHolderAlreadyExists) {
         contentHolder = document.getElementById('content-holder')
     } else {
-        console.log('no')
         contentHolder = document.createElement('span')
         contentHolder.setAttribute('id', 'content-holder')
         pageMainElement.appendChild(contentHolder)
     }
-
-    // let contentHolder = document.createElement('span')
-    // contentHolder.setAttribute('id', 'content-holder')
-    // pageMainElement.appendChild(contentHolder)
 
     let addSearchedFor = checkForMultipleSearchTerms()
 
@@ -224,6 +195,7 @@ const renderStores = (stores, moreResultsToDisplay) => {
         })
         } else {
             stores.forEach((store) => {
+                
                 let storeElement = generateSelectStoreDOM(store)
                 contentHolder.appendChild(storeElement)
         })
@@ -233,7 +205,8 @@ const renderStores = (stores, moreResultsToDisplay) => {
   
     clickableElements.forEach((button)=> {
     button.addEventListener("click", (event) => {
-        selectThisStore(event.target.id, stores) 
+        selectThisStore(event.target.id, currentListOfStores) 
+        
     })
     })
 
@@ -243,7 +216,7 @@ const renderStores = (stores, moreResultsToDisplay) => {
         showMoreResultsButton.textContent = 'SHOW MORE RESULTS'
         contentHolder.appendChild(showMoreResultsButton) 
         showMoreResultsButton.addEventListener('click', ()=> {
-            getNext10OrFewerResults()
+            getNext10OrFewerResults(currentListOfStores)
         } )
     }
 }
