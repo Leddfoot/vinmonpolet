@@ -1,59 +1,59 @@
+
 'use strict'
 import { getStoreByName, getallStores } from 'components/requests'
 import { renderStores, renderStore, renderNoStoresFound, renderHeader, renderSearchElement, renderTimeAndDate, clearExistingContent } from 'views/createPage'
+import { preferredStore } from 'components/preferenceStorage'
 let searchTerm
 let haveDownloadedEntireList = false
 let searchTermIsMultiple = false
 let moreResultsToDisplay = false
 let listToPaginate = []
 let entireListOfStores = {}
-let currentListOfStores = []
+let displayingHomeStore = false
 
 
 import 'main.css';
 
 renderHeader()
 renderTimeAndDate()
-renderSearchElement()
 
-const mainSearchInputElement = document.querySelector('#main-search-input')
-mainSearchInputElement.setAttribute('placeholder', 'Enter a city, store name, or postal code')
-mainSearchInputElement.setAttribute('name', 'searchTerm')
-const mainSearchInputForm = document.querySelector('#main-search-form')
-
-mainSearchInputForm.addEventListener('submit', function (e) {
-  clearExistingContent()
-  currentListOfStores = []
-  e.preventDefault()
-  if (e.target.elements.searchTerm.value === ''){
-    return
-  }  
-  searchTermIsMultiple = false
-  listToPaginate = {}
-  searchTerm = e.target.elements.searchTerm.value
-  searchTerm = searchTerm.trim()
-
-  if (haveDownloadedEntireList === true) {
-    if (!searchTerm.includes(' ')) {
-      const filteredStoreList = filterResults(entireListOfStores, searchTerm)
-      handlePossibleMatches(filteredStoreList)
+const createSearchEventHandler=()=>{
+  const mainSearchInputForm = document.querySelector('#main-search-form')
+  mainSearchInputForm.addEventListener('submit', function (e) {
+    clearExistingContent()
+    e.preventDefault()
+    displayingHomeStore = false
+    if (e.target.elements.searchTerm.value === ''){
+      return
+    }  
+    searchTermIsMultiple = false
+    listToPaginate = {}
+    searchTerm = e.target.elements.searchTerm.value
+    searchTerm = searchTerm.trim()
+  
+    if (haveDownloadedEntireList === true) {
+      if (!searchTerm.includes(' ')) {
+        const filteredStoreList = filterResults(entireListOfStores, searchTerm)
+        handlePossibleMatches(filteredStoreList)
+      } else {
+        searchTermIsMultiple = true
+        let multipleSearchTerms = handleMultipleSearchTerms.divideSearchTerms(searchTerm)
+        const filteredStoreListMultSearch = filterMultiSearches(multipleSearchTerms)
+        const combinedFilteredArray = [].concat(...filteredStoreListMultSearch)
+        handlePossibleMatches(combinedFilteredArray)
+      }    
     } else {
-      searchTermIsMultiple = true
-      let multipleSearchTerms = handleMultipleSearchTerms.divideSearchTerms(searchTerm)
-      const filteredStoreListMultSearch = filterMultiSearches(multipleSearchTerms)
-      const combinedFilteredArray = [].concat(...filteredStoreListMultSearch)
-      handlePossibleMatches(combinedFilteredArray)
-    }    
-  } else {
-    if (!searchTerm.includes(' ')) {
-      handleSingleQuery(searchTerm)
-    } else {
-          let multipleSearchTerms = handleMultipleSearchTerms.divideSearchTerms(searchTerm)
-          getMultiFetchesTest(multipleSearchTerms)
+      if (!searchTerm.includes(' ')) {
+        handleSingleQuery(searchTerm)
+      } else {
+            let multipleSearchTerms = handleMultipleSearchTerms.divideSearchTerms(searchTerm)
+            getMultiFetchesTest(multipleSearchTerms)
+      }
     }
-  }
+  
+  })
+}
 
-})
 
 const filterMultiSearches = (multipleSearchTerms) => {
   const filteredStoreListMultSearch = new Array
@@ -67,11 +67,21 @@ const filterMultiSearches = (multipleSearchTerms) => {
 }
 
 
+//todo --BUG--AFTER DOWNloading entire list, multiple searches are not clickable
+//-- problem is here
+
+//todo -- refactor-- combine clearexistingcontent & clearSearchForm
+
 
 //todo change button click to entire button (display block not working yet, may have to do it in css)
-//todo make a store your home store
+
+//todo ...maybe...prioritize multiple search term matches .... ie holmen senter should either display only this store
+// or make it first in the list
+
+
 //todo more date/holiday testing
 //todo change  the store is open on this date to : store is open/closed ...hours are/were
+//is it necessary to destroy event handlers?
 
 const handleSingleQuery = function (searchTerm){
     
@@ -152,7 +162,6 @@ const getNext10OrFewerResults = (currentListOfStores) => {
     moreResultsToDisplay = false
   }  
   const current10orFewerResults = listToPaginate.splice(0, 10)
-  console.log('currentListOfStores from getnext 10: ', currentListOfStores);
   renderStores(current10orFewerResults, moreResultsToDisplay, currentListOfStores)
   
 }
@@ -173,7 +182,24 @@ const filterResults = function (stores, searchTerm){
 
 const checkForMultipleSearchTerms =()=> searchTermIsMultiple
 
-export {checkForMultipleSearchTerms, getNext10OrFewerResults, listToPaginate}
+
+
+const handleHomeStore =() =>{
+  let homeStore = preferredStore.initialize()
+
+  if (homeStore !== 'none set') {
+    displayingHomeStore = true
+    handleSingleQuery(homeStore)
+  } else {
+    displayingHomeStore = false
+    renderSearchElement()
+    createSearchEventHandler()
+  }
+}
+
+handleHomeStore()
+
+export {checkForMultipleSearchTerms, getNext10OrFewerResults, listToPaginate, displayingHomeStore, createSearchEventHandler}
 
 
 

@@ -1,5 +1,6 @@
 import { setSelectedStoreHolidays, filteredHoliday, checkDayOfTheWeek, formattedTime, formattedDate } from 'components/dateCalculations'
-import { checkForMultipleSearchTerms, getNext10OrFewerResults, listToPaginate } from '../index'
+import { preferredStore } from '../components/preferenceStorage'
+import { checkForMultipleSearchTerms, getNext10OrFewerResults, displayingHomeStore, createSearchEventHandler } from '../index'
 const pageMainElement = document.querySelector('main')
 
 let temporaryStoreHolder
@@ -43,6 +44,8 @@ const generateSearchInputDOM =()=> {
     searchInputForm.setAttribute('id', 'main-search-form')
     const searchInputElement = document.createElement('input')
     searchInputElement.setAttribute('id', 'main-search-input')
+    searchInputElement.setAttribute('placeholder', 'Enter a city, store name, or postal code')
+    searchInputElement.setAttribute('name', 'searchTerm')
     const searchButtonElement = document.createElement('button')
     searchButtonElement.textContent = 'Search'
     searchInputForm.appendChild(searchInputElement)
@@ -50,6 +53,7 @@ const generateSearchInputDOM =()=> {
 
     return searchInputForm
 }
+
 
 const renderSearchElement =()=> {
     const searchInputForm = generateSearchInputDOM()    
@@ -96,6 +100,7 @@ const generateStoreOpeningHoursDOM = (message) => {
 const renderStore = (store) => {
     temporaryStoreHolder = store
     clearExistingContent()
+    clearSearchForm()
     store = temporaryStoreHolder
     const contentHolder = document.createElement('span')
     contentHolder.setAttribute('id', 'content-holder')
@@ -126,10 +131,43 @@ const renderStore = (store) => {
             const openingHours = `This store is open on this date between ${store[0].openingHours.regularHours[weekday].openingTime} and ${store[0].openingHours.regularHours[weekday].closingTime}`
             const openingHoursElement = generateStoreOpeningHoursDOM(openingHours)
             contentHolder.appendChild(openingHoursElement)
-        }
-        
+        }        
     }
-    
+    if (displayingHomeStore === false) {
+        
+        let homeStoreButton = renderHomeStoreButton(store)
+        contentHolder.appendChild(homeStoreButton)
+    } else {
+        let searchAgainButton = renderSearchAgainButton()
+        contentHolder.appendChild(searchAgainButton)
+    }
+}
+
+const renderSearchAgainButton =()=>{
+    let searchAgainButton = document.createElement('button')
+    searchAgainButton.textContent = 'FIND ANOTHER STORE'
+
+    searchAgainButton.addEventListener("click", (e) => {
+        clearExistingContent()
+        renderSearchElement()
+        createSearchEventHandler()        
+    })
+    return searchAgainButton
+}
+
+const renderHomeStoreButton =(store)=> {
+    let homeStoreButton = document.createElement('button')
+    homeStoreButton.textContent = 'MAKE THIS MY HOME STORE'
+    homeStoreButton.setAttribute('id', 'home-store-button')
+
+    homeStoreButton.addEventListener("click", (e) => {
+        let contentHolder = document.getElementById('content-holder')
+        preferredStore.setHomeStore(store[0].storeName) 
+        clearHomeStoreButton()
+        let searchAgainButton = renderSearchAgainButton()
+        contentHolder.appendChild(searchAgainButton)
+    })
+    return homeStoreButton
 }
 
 const generateSelectStoreDOMWithSearchTerm = (store) => {
@@ -221,8 +259,6 @@ const renderStores = (stores, moreResultsToDisplay, currentListOfStores) => {
     }
 }
 
-
-
   
 const renderNoStoresFound =()=> { 
     let contentHolder = document.createElement('span')
@@ -234,6 +270,7 @@ const renderNoStoresFound =()=> {
 }
 
 const clearExistingContent = () => {
+
     let contentHolder = document.getElementById('content-holder')
     if (contentHolder) {
         if (contentHolder.firstChild){
@@ -243,6 +280,24 @@ const clearExistingContent = () => {
                     contentHolder.parentElement.removeChild(contentHolder)
         }
     } 
+
+}
+
+const clearSearchForm =()=> {
+    let searchForm = document.getElementById('main-search-form')
+    if (searchForm) {
+        if (searchForm.firstChild){
+            while(searchForm.firstChild !== null) {
+                searchForm.removeChild(searchForm.firstChild)
+                    }
+                    searchForm.parentElement.removeChild(searchForm)
+        }
+    }
+}
+
+const clearHomeStoreButton = () => {
+    let homeStoreButton = document.getElementById('home-store-button')
+    homeStoreButton.parentNode.removeChild(homeStoreButton);
 }
 
 

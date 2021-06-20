@@ -16,6 +16,7 @@ export async function getStoreByName(searchTerm) {
 }
 
 const fakeSmallAPIcall = (stores, searchTerm) => {
+  console.log('searchTerm: ', searchTerm);
   return stores.filter(function (store) {
     
     const isStoreNameMatch = store.storeName.toLowerCase().includes(searchTerm.toString().toLowerCase())
@@ -30,6 +31,11 @@ export async function getallStores(searchTerm) {
   console.log('fake fetching everything')
    return storeList
  }
+
+
+
+
+
 
 //  import { config } from './config'
 
