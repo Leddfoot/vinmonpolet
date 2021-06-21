@@ -1,6 +1,6 @@
 import { setSelectedStoreHolidays, filteredHoliday, checkDayOfTheWeek, formattedTime, formattedDate } from 'components/dateCalculations'
 import { preferredStore } from '../components/preferenceStorage'
-import { checkForMultipleSearchTerms, getNext10OrFewerResults, displayingHomeStore, createSearchEventHandler } from '../index'
+import { checkForMultipleSearchTerms, getNext10OrFewerResults, displayingHomeStore, createSearchEventHandler, currentListOfStores } from '../index'
 const pageMainElement = document.querySelector('main')
 
 let temporaryStoreHolder

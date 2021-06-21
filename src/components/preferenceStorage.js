@@ -3,7 +3,7 @@ let preferredStore = {
     initialize: function () {
         if (localStorage) {
             // localStorage.clear()
-            // this.setHomeStore('holmen')
+            // this.setHomeStore('holmen senter')
             return this.getHomeStore()  
         }
     }, getHomeStore: function () {

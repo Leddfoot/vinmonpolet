@@ -10,6 +10,7 @@ let moreResultsToDisplay = false
 let listToPaginate = []
 let entireListOfStores = {}
 let displayingHomeStore = false
+let currentListOfStores = {}
 
 
 import 'main.css';
@@ -32,6 +33,7 @@ const createSearchEventHandler=()=>{
     searchTerm = searchTerm.trim()
   
     if (haveDownloadedEntireList === true) {
+      currentListOfStores = entireListOfStores
       if (!searchTerm.includes(' ')) {
         const filteredStoreList = filterResults(entireListOfStores, searchTerm)
         handlePossibleMatches(filteredStoreList)
@@ -64,13 +66,11 @@ const filterMultiSearches = (multipleSearchTerms) => {
     })
   }
   return filteredStoreListMultSearch 
+  
 }
 
-
-//todo --BUG--AFTER DOWNloading entire list, multiple searches are not clickable
-//-- problem is here
-
-//todo -- refactor-- combine clearexistingcontent & clearSearchForm
+//todo add find another store when selectstore...because
+//there is no way to get back from there without making a store your home store
 
 
 //todo change button click to entire button (display block not working yet, may have to do it in css)
@@ -87,8 +87,8 @@ const handleSingleQuery = function (searchTerm){
     
     getStoreByName(searchTerm)
     .then((result) => { 
-      let currentListOfStores = [...result]
-      handlePossibleMatches(result, currentListOfStores)
+      currentListOfStores = [...result]
+      handlePossibleMatches(result) 
     }).catch((err) => {
      console.log(`Error: ${err}`)
     })
@@ -123,21 +123,22 @@ function getMultiFetchesTest (multipleSearchTerms) {
   }
   Promise.all(fetches).then(function() { 
     let combinedFetchArray = [].concat(...temporaryArray)
-    let currentListOfStores = [...combinedFetchArray]
-    handlePossibleMatches(combinedFetchArray, currentListOfStores)
-  });
+    currentListOfStores = [...combinedFetchArray]
+    handlePossibleMatches(combinedFetchArray)
+  })
   }
-
-const handlePossibleMatches = (possibleMatches, currentListOfStores) => {
+const handlePossibleMatches = (possibleMatches) => {
   if (possibleMatches.length === 1){
     renderStore(possibleMatches)
   } else if (possibleMatches.length > 1 && possibleMatches.length <= 10) {
     let moreResultsToDisplay = false
     renderStores(possibleMatches, moreResultsToDisplay, currentListOfStores)
     
+    
   } else if (possibleMatches.length > 1) { 
   listToPaginate = possibleMatches
   getNext10OrFewerResults(currentListOfStores)
+  
   
   } else if (haveDownloadedEntireList === true ){
     renderNoStoresFound()
@@ -163,6 +164,7 @@ const getNext10OrFewerResults = (currentListOfStores) => {
   }  
   const current10orFewerResults = listToPaginate.splice(0, 10)
   renderStores(current10orFewerResults, moreResultsToDisplay, currentListOfStores)
+  
   
 }
 
@@ -199,7 +201,7 @@ const handleHomeStore =() =>{
 
 handleHomeStore()
 
-export {checkForMultipleSearchTerms, getNext10OrFewerResults, listToPaginate, displayingHomeStore, createSearchEventHandler}
+export {checkForMultipleSearchTerms, getNext10OrFewerResults, listToPaginate, displayingHomeStore, createSearchEventHandler, currentListOfStores}
 
 
 
