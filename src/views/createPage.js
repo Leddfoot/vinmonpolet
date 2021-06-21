@@ -99,8 +99,8 @@ const generateStoreOpeningHoursDOM = (message) => {
 
 const renderStore = (store) => {
     temporaryStoreHolder = store
-    clearExistingContent()
-    clearSearchForm()
+    removeDomElements()
+    removeDomElements('search-form')
     store = temporaryStoreHolder
     const contentHolder = document.createElement('span')
     contentHolder.setAttribute('id', 'content-holder')
@@ -148,7 +148,7 @@ const renderSearchAgainButton =()=>{
     searchAgainButton.textContent = 'FIND ANOTHER STORE'
 
     searchAgainButton.addEventListener("click", (e) => {
-        clearExistingContent()
+        removeDomElements()
         renderSearchElement()
         createSearchEventHandler()        
     })
@@ -163,7 +163,8 @@ const renderHomeStoreButton =(store)=> {
     homeStoreButton.addEventListener("click", (e) => {
         let contentHolder = document.getElementById('content-holder')
         preferredStore.setHomeStore(store[0].storeName) 
-        clearHomeStoreButton()
+        // clearHomeStoreButton()
+        removeDomElements('home-store-button')
         let searchAgainButton = renderSearchAgainButton()
         contentHolder.appendChild(searchAgainButton)
     })
@@ -201,7 +202,7 @@ const generateSelectStoreDOM = (store) => {
 }
 
 const selectThisStore =(id, stores)=> {
-    clearExistingContent()
+    removeDomElements()
     let filteredStore = stores.filter(store => store.storeId === id)    
     renderStore(filteredStore)
     
@@ -269,37 +270,26 @@ const renderNoStoresFound =()=> {
     pageMainElement.appendChild(contentHolder) 
 }
 
-const clearExistingContent = () => {
+const removeDomElements = (elementsToDestroy) => {
+    let toDestroy
+    if (elementsToDestroy === 'home-store-button') {
+        toDestroy = document.getElementById('home-store-button')
+ 
+    } else if (elementsToDestroy === 'search-form') {
+        toDestroy = document.getElementById('main-search-form')
+    } else {
+        toDestroy = document.getElementById('content-holder')
+    }
 
-    let contentHolder = document.getElementById('content-holder')
-    if (contentHolder) {
-        if (contentHolder.firstChild){
-            while(contentHolder.firstChild !== null) {
-                        contentHolder.removeChild(contentHolder.firstChild)
+    if (toDestroy) {
+        if (toDestroy.firstChild){
+            while(toDestroy.firstChild !== null) {
+                toDestroy.removeChild(toDestroy.firstChild)
                     }
-                    contentHolder.parentElement.removeChild(contentHolder)
+                    toDestroy.parentElement.removeChild(toDestroy)
         }
     } 
-
 }
 
-const clearSearchForm =()=> {
-    let searchForm = document.getElementById('main-search-form')
-    if (searchForm) {
-        if (searchForm.firstChild){
-            while(searchForm.firstChild !== null) {
-                searchForm.removeChild(searchForm.firstChild)
-                    }
-                    searchForm.parentElement.removeChild(searchForm)
-        }
-    }
-}
-
-const clearHomeStoreButton = () => {
-    let homeStoreButton = document.getElementById('home-store-button')
-    homeStoreButton.parentNode.removeChild(homeStoreButton);
-}
-
-
-export { renderStores, renderStore, renderNoStoresFound, renderHeader, renderSearchElement, renderTimeAndDate, clearExistingContent }
+export { renderStores, renderStore, renderNoStoresFound, renderHeader, renderSearchElement, renderTimeAndDate, removeDomElements }
 
