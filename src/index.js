@@ -1,7 +1,7 @@
 
 'use strict'
 import { getStoreByName, getallStores } from 'components/requests'
-import { renderStores, renderStore, renderNoStoresFound, renderHeader, renderSearchElement, renderTimeAndDate, clearExistingContent } from 'views/createPage'
+import { renderStores, renderStore, renderNoStoresFound, renderHeader, renderSearchElement, renderTimeAndDate, removeDomElements } from 'views/createPage'
 import { preferredStore } from 'components/preferenceStorage'
 let searchTerm
 let haveDownloadedEntireList = false
@@ -21,7 +21,7 @@ renderTimeAndDate()
 const createSearchEventHandler=()=>{
   const mainSearchInputForm = document.querySelector('#main-search-form')
   mainSearchInputForm.addEventListener('submit', function (e) {
-    clearExistingContent()
+    removeDomElements()
     e.preventDefault()
     displayingHomeStore = false
     if (e.target.elements.searchTerm.value === ''){
