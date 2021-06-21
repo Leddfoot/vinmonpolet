@@ -133,9 +133,12 @@ const renderStore = (store) => {
             contentHolder.appendChild(openingHoursElement)
         }        
     }
+    console.log('displayingHomeStore: ', displayingHomeStore);
     if (displayingHomeStore === false) {
         
         let homeStoreButton = renderHomeStoreButton(store)
+        let searchAgainButton = renderSearchAgainButton()
+        contentHolder.appendChild(searchAgainButton)        
         contentHolder.appendChild(homeStoreButton)
     } else {
         let searchAgainButton = renderSearchAgainButton()
@@ -146,6 +149,7 @@ const renderStore = (store) => {
 const renderSearchAgainButton =()=>{
     let searchAgainButton = document.createElement('button')
     searchAgainButton.textContent = 'FIND ANOTHER STORE'
+    searchAgainButton.setAttribute('id', 'search-again-button')
 
     searchAgainButton.addEventListener("click", (e) => {
         removeDomElements()
@@ -162,11 +166,15 @@ const renderHomeStoreButton =(store)=> {
 
     homeStoreButton.addEventListener("click", (e) => {
         let contentHolder = document.getElementById('content-holder')
-        preferredStore.setHomeStore(store[0].storeName) 
-        // clearHomeStoreButton()
+        preferredStore.setHomeStore(store[0].storeName)
         removeDomElements('home-store-button')
+
+        let searchAgainButton = document.getElementById('search-again-button')
+        if (!searchAgainButton) {
         let searchAgainButton = renderSearchAgainButton()
-        contentHolder.appendChild(searchAgainButton)
+        contentHolder.appendChild(searchAgainButton)  
+        }
+
     })
     return homeStoreButton
 }
