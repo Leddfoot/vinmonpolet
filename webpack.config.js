@@ -41,7 +41,11 @@ const config = {
   devServer: {
     contentBase: __dirname + '/public',
     // contentBase: path.resolve(__dirname, 'public'),
-
+    // headers: {
+    //   "Access-Control-Allow-Origin": "*",
+    //   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
+    //   "Access-Control-Allow-Headers": "X-Requested-With, content-type, Authorization"
+    // },
     compress: true,
     port: 9000,
     open: true,
