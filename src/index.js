@@ -49,7 +49,7 @@ const createSearchEventHandler=()=>{
         handleSingleQuery(searchTerm)
       } else {
             let multipleSearchTerms = handleMultipleSearchTerms.divideSearchTerms(searchTerm)
-            getMultiFetchesTest(multipleSearchTerms)
+            getMultiFetches(multipleSearchTerms)
       }
     }
   
@@ -69,19 +69,10 @@ const filterMultiSearches = (multipleSearchTerms) => {
   
 }
 
-//todo add find another store when selectstore...because
-//there is no way to get back from there without making a store your home store
-
-
-//todo change button click to entire button (display block not working yet, may have to do it in css)
-
-//todo ...maybe...prioritize multiple search term matches .... ie holmen senter should either display only this store
-// or make it first in the list
-
-
-//todo more date/holiday testing
 //todo change  the store is open on this date to : store is open/closed ...hours are/were
-//is it necessary to destroy event handlers?
+//todo change button click to entire button (display block not working yet, may have to do it in css)
+//todo more date/holiday testing
+
 
 const handleSingleQuery = function (searchTerm){
     
@@ -104,42 +95,71 @@ const handleMultipleSearchTerms = (function () {
   }
 })()
 
-function getMultiFetchesTest (multipleSearchTerms) {
+function getMultiFetches (multipleSearchTerms) {
   searchTermIsMultiple = true
-  let temporaryArray = new Array;
+  let temporaryArray = []
   let fetches = [];
   for (let i = 0; i < multipleSearchTerms.length; i++) {
     fetches.push(
-      getStoreByName(multipleSearchTerms[i])
+      getStoreByName(multipleSearchTerms[i],searchTermIsMultiple)
       .then(result => {
         result.forEach(store => {
           store.searchedFor = multipleSearchTerms[i]
-        });
-        temporaryArray.push(result);
+        })
+        temporaryArray.push(result)      
           }
       )
-      .catch(status, err => {return console.log(status, err);})
-    );
+      .catch(status, err => {return console.log(status, err)})
+    )
   }
-  Promise.all(fetches).then(function() { 
+
+  Promise.all(fetches).then(function() {    
     let combinedFetchArray = [].concat(...temporaryArray)
-    currentListOfStores = [...combinedFetchArray]
-    handlePossibleMatches(combinedFetchArray)
+
+  const findMultiMatches = combinedFetchArray.reduce((stores, store) => {    
+    stores[store.storeId] = ++stores[store.storeId] || 0
+    return stores;
+  }, {})
+
+  let multiMatches = combinedFetchArray.filter(store => findMultiMatches[store.storeId])
+
+    if (multiMatches.length < 1) {
+        currentListOfStores = [...combinedFetchArray]    
+        handlePossibleMatches(combinedFetchArray)
+    } else {
+      let combinedFetchArrayWODupes = [...new Set(combinedFetchArray)]
+      const reorganizedArray = handleMultiMatches(multiMatches, combinedFetchArrayWODupes)
+      currentListOfStores = [...reorganizedArray]
+      handlePossibleMatches(reorganizedArray)
+    }
   })
-  }
+}
+
+const handleMultiMatches =(multiMatches, combinedFetchArrayWODupes) => {
+  for (let i = 0; i < multiMatches.length; i += 2) {
+    const element = multiMatches[i];
+    const storeId = element.storeId
+    let storeToBeModified = combinedFetchArrayWODupes.find((store)=>{ 
+      return store.storeId = storeId
+    } )
+    storeToBeModified.searchedFor = 'multiple matching search terms'
+    const storeObjectToBeMovedPosition = combinedFetchArrayWODupes.indexOf(storeToBeModified)      
+    let storeToBeMoved = combinedFetchArrayWODupes.splice(storeObjectToBeMovedPosition, 1)      
+    combinedFetchArrayWODupes.unshift(storeToBeMoved[0])
+    return combinedFetchArrayWODupes
+  }    
+}
+
+
 const handlePossibleMatches = (possibleMatches) => {
   if (possibleMatches.length === 1){
     renderStore(possibleMatches)
   } else if (possibleMatches.length > 1 && possibleMatches.length <= 10) {
     let moreResultsToDisplay = false
-    renderStores(possibleMatches, moreResultsToDisplay, currentListOfStores)
-    
-    
+    renderStores(possibleMatches, moreResultsToDisplay, currentListOfStores) 
   } else if (possibleMatches.length > 1) { 
-  listToPaginate = possibleMatches
-  getNext10OrFewerResults(currentListOfStores)
-  
-  
+    listToPaginate = possibleMatches
+    getNext10OrFewerResults(currentListOfStores)
   } else if (haveDownloadedEntireList === true ){
     renderNoStoresFound()
   } else {
@@ -163,9 +183,7 @@ const getNext10OrFewerResults = (currentListOfStores) => {
     moreResultsToDisplay = false
   }  
   const current10orFewerResults = listToPaginate.splice(0, 10)
-  renderStores(current10orFewerResults, moreResultsToDisplay, currentListOfStores)
-  
-  
+  renderStores(current10orFewerResults, moreResultsToDisplay, currentListOfStores)  
 }
 
 
@@ -202,7 +220,6 @@ const handleHomeStore =() =>{
 handleHomeStore()
 
 export {checkForMultipleSearchTerms, getNext10OrFewerResults, listToPaginate, displayingHomeStore, createSearchEventHandler, currentListOfStores}
-
 
 
 

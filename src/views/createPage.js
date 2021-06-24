@@ -54,7 +54,6 @@ const generateSearchInputDOM =()=> {
     return searchInputForm
 }
 
-
 const renderSearchElement =()=> {
     const searchInputForm = generateSearchInputDOM()    
     pageMainElement.appendChild(searchInputForm)
@@ -252,6 +251,7 @@ const renderStores = (stores, moreResultsToDisplay, currentListOfStores) => {
   
     clickableElements.forEach((button)=> {
     button.addEventListener("click", (event) => {
+        // debugger
         selectThisStore(event.target.id, currentListOfStores) 
         
     })
