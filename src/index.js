@@ -69,9 +69,11 @@ const filterMultiSearches = (multipleSearchTerms) => {
   
 }
 
-//todo change  the store is open on this date to : store is open/closed ...hours are/were
+
 //todo change button click to entire button (display block not working yet, may have to do it in css)
-//todo more date/holiday testing
+//todo more holiday testing, when the vinmonopolet API adds more holidays
+//todo MUST HAVE CHECK ANOTHER STORE BUTTON ON STORE CLOSED (only WHEN DISPLAYING HOMESTORE)
+//todo add an analog clock   .... https://www.w3schools.com/graphics/canvas_clock.asp
 
 
 const handleSingleQuery = function (searchTerm){

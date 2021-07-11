@@ -1,33 +1,43 @@
-import { format, getDay, parseISO} from 'date-fns';
+
 let selectedStoreHolidays = {}
 let filteredHoliday = null
 
-const setSelectedStoreHolidays = (holidayDates) => {
-    selectedStoreHolidays = holidayDates
-    isTodayHoliday(selectedStoreHolidays)
-    
+
+
+const now = new Date()
+// now.setMonth(7)
+// const now = new Date(2021,6,2,17,49,59)
+
+const formatCurrentTime =()=>{
+    let nowTime = new Date()
+    let nowHour = nowTime.getHours(nowTime)
+    let nowMinutes = nowTime.getMinutes(nowTime)
+    let nowSeconds = nowTime.getSeconds(nowTime)
+    return `${nowHour}:${nowMinutes}:${nowSeconds}`
 }
 
-//used only for current time, NOT DATE
-var todayTime = new Date(2021,5,21,18,0);
-// var todayTime = new Date();
+const formattedCurrentTime = formatCurrentTime()
 
-var formattedTime = format(todayTime, 'HH:mm')
-// var formattedTime = '14:38'
+const nowYear = now.getFullYear(now)
+const nowMonth = now.getMonth(now)
+const nowDate = now.getDate(now)
+const nowMonthText = now.toLocaleString("default", { month: "long" })
+const nowWeekday = now.toLocaleString("default", { weekday: "short" })
 
+const todayDateForHolidayCheck = `${nowYear}.${nowMonth + 1}.${nowDate}`
+const todayDateForDisplay = `${nowWeekday}, ${nowMonthText} ${nowDate}`
+const setSelectedStoreHolidays = (holidayDates) => {
+    selectedStoreHolidays = holidayDates
+    isTodayHoliday(selectedStoreHolidays)    
+}
 
-const todayDate = format(new Date(),'yyyy.MM.dd')
-// const todayDate = format(new Date(2021,5,20),'yyyy.MM.dd')
-
-const todayAsArray = todayDate.split('.')
-const convertedToday = `${todayAsArray[0]}-${todayAsArray[1]}-${todayAsArray[2]}`
-
-const isTodayHoliday = (selectedStoreHolidays) => {
- 
+const isTodayHoliday = (selectedStoreHolidays) => {    
+    const todayAsArray = todayDateForHolidayCheck.split('.')
+    const convertedToday = `${todayAsArray[0]}-${todayAsArray[1]}-${todayAsArray[2]}`
 
     function isTodayHoliday (selectedStoreHolidays) {
         return selectedStoreHolidays.date === convertedToday
-      }
+    }
 
     filteredHoliday = selectedStoreHolidays.filter(isTodayHoliday)
     if (filteredHoliday.length === 0) {
@@ -36,47 +46,52 @@ const isTodayHoliday = (selectedStoreHolidays) => {
 }
 
 const checkDayOfTheWeek = function (){
-
-    let dayOfTheWeek = getDay(parseISO(convertedToday))
-   
-    //Note date fns uses 0 to represent sunday, vinmonpolet uses 0 to represent monday
+    let dayOfTheWeek = now.getDay(now)
+    //Note JS uses 0 to represent sunday, vinmonpolet uses 0 to represent monday
     //the code below is just adjusting that
-    let convertedDayOfTheWeek = 0
+    let convertedDayOfTheWeek 
+
     if (dayOfTheWeek >= 1) {
         convertedDayOfTheWeek = dayOfTheWeek -= 1
     } else {
         convertedDayOfTheWeek = 6
-    }
+     }
     return convertedDayOfTheWeek    
 }
 
-    const isStoreOpenNow = (openingTimeToday, closingTimeToday)=>{  
+ const isStoreOpenNow = (openingTimeToday, closingTimeToday)=>{  
+
+    //////////////////////////////////////
+    //leave this section for testing........ 
+    //used to fake an updated now
+     let now2 = new Date()
+    ///////////////////////
+    //try this may have to coordinate this fake now with the now above
+    // let now2 = new Date(now.valueOf())
+    // let now2 = new Date(2021,6,2,17,49,59)
+    /////////////////////
+    setInterval(function() {
+        return now2 = new Date()
+    }, 1000)
+    ////////////////////////
     let status = {}
-    let nowHour = todayTime.getHours()
-    let nowMinute = todayTime.getMinutes() 
-    let openingHour = openingTimeToday.substring(0, 2)
-    let openingMinute = openingTimeToday.slice(3, 2) //don't use substring here, will break
-    let closingHour = closingTimeToday.substring(0, 2)
-    let closingMinute = closingTimeToday.slice(3, 2) //don't use substring here, will break
-    if (openingMinute == 0){
-        openingMinute = 0
-    }
-    if (closingMinute == 0){ //this is necessary
-        closingMinute = 0
-    }
-    if (nowHour >= openingHour && nowMinute >= openingMinute) {
+
+    const convertedOpeningTime = convertTimeStringToProperDate(openingTimeToday)
+
+    //////////////////////////////////
+    // const convertedClosingTime = convertTimeStringToProperDate(closingTimeToday)
+    const convertedClosingTime = temporaryConvertTimeStringToProperDate(closingTimeToday)
+    ///you are using temporaryconverblabla to fake closing time; was messing up the opeing tiem
+ 
+    ///////////////////////////
+    if (now2 >= convertedOpeningTime) {
         status.hasOpened = true
-    } else {
+    }  else {
         status.hasOpened = false
     }
-    if (closingMinute === 0) {
-        closingMinute = 60
-    }
 
-    if (nowHour < closingHour) {
+    if (now2 < convertedClosingTime) {
         status.hasClosed = false        
-    } else if(nowHour === closingHour && nowMinute < closingMinute) {
-        status.hasClosed = false
     } else {
         status.hasClosed = true
     }
@@ -87,10 +102,68 @@ const checkDayOfTheWeek = function (){
         status.isOpen = false
     }
     return status
-    console.log('status: ', status);
+    
 }
 
+const convertTimeStringToProperDate =(timeString)=> {
+    //used to take the string opening/closing times ie('11:30) and put them into a js date object, so the countdown timer has proper js dates
+    let timeToArray = timeString.split(':')
 
+    let hour = timeToArray[0]
+    let minute = timeToArray[1]
 
+    const convertedTime = new Date(now.valueOf()) //THis prevents pointing to the now ..deep copy
 
-export { setSelectedStoreHolidays, isTodayHoliday, filteredHoliday, checkDayOfTheWeek, formattedTime, todayDate, isStoreOpenNow }
+    convertedTime.setHours(hour)
+    convertedTime.setMinutes(minute)
+    convertedTime.setSeconds(0)
+    // convertedTime.setHours(15)
+    // convertedTime.setMinutes(58)
+    // convertedTime.setSeconds(0)
+
+    return convertedTime
+    
+}
+
+const temporaryConvertTimeStringToProperDate =(timeString)=> {
+    //used to take the string opening/closing times ie('11:30) and put them into a js date object, so the countdown timer has proper js dates
+    let timeToArray = timeString.split(':')
+
+    let hour = timeToArray[0]
+    let minute = timeToArray[1]
+
+    const convertedTime = new Date(now.valueOf()) //THis prevents pointing to the now ..deep copy
+
+    convertedTime.setHours(hour)
+    convertedTime.setMinutes(minute)
+    convertedTime.setSeconds(0)
+    // convertedTime.setHours(15)
+    // convertedTime.setMinutes(58)
+    // convertedTime.setSeconds(0)
+
+    return convertedTime
+    
+}
+
+const getCountDownTimeRemaining =(closingTimeConverted)=> {
+    //////////////
+    /////must coordinate with the other 2 nows
+    
+    const constantlyChangingNow = new Date(now.valueOf())
+    //////////////
+    // const constantlyChangingNow = new Date()
+
+    const timeLeft = {}
+    const timeuntilclosing = closingTimeConverted - constantlyChangingNow
+    
+    timeLeft.hours = Math.floor((timeuntilclosing % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    timeLeft.minutes = Math.floor((timeuntilclosing % (1000 * 60 * 60)) / (1000 * 60))
+    timeLeft.seconds = Math.floor((timeuntilclosing % (1000 * 60)) / 1000)
+    timeLeft.hours - timeLeft.minutes - timeLeft.seconds
+ 
+    return timeLeft
+ 
+
+}
+
+export { setSelectedStoreHolidays, isTodayHoliday, filteredHoliday, checkDayOfTheWeek, formattedCurrentTime, todayDateForDisplay, isStoreOpenNow, getCountDownTimeRemaining, convertTimeStringToProperDate, formatCurrentTime }
