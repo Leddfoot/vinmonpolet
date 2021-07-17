@@ -1,9 +1,10 @@
 import { setSelectedStoreHolidays, filteredHoliday, checkDayOfTheWeek, formattedCurrentTime, todayDateForDisplay, isStoreOpenNow, getCountDownTimeRemaining, convertTimeStringToProperDate, formatCurrentTime } from 'components/dateCalculations'
 import { preferredStore } from '../components/preferenceStorage'
 import { checkForMultipleSearchTerms, getNext10OrFewerResults, displayingHomeStore, createSearchEventHandler } from '../index'
+import { generateClock } from '../components/clock'
 const pageMainElement = document.querySelector('main')
 let temporaryStoreHolder
-let countdownTimer
+let displayingIndividualStore = false
 
 const generateHeaderDOM = () => {
     const headerElement = document.createElement('header')
@@ -13,6 +14,25 @@ const generateHeaderDOM = () => {
 
     return headerElement        
 }
+
+const generateClockDom=()=>{
+    let canvas = document.createElement('canvas')
+    canvas.setAttribute('id', 'canvas')
+    canvas.setAttribute('width', '130')
+    canvas.setAttribute('height', '130')
+    canvas.setAttribute('aria-label', 'clock with current time')
+    canvas.setAttribute('style','background-color:#777')
+    // console.log('emptyCanvas: ', canvas)
+    generateClock(canvas)
+    return canvas
+}
+
+const renderClockDom =()=> {
+    const clock = generateClockDom()
+    pageMainElement.appendChild(clock)
+}
+
+
 
 const renderHeader =() => {
     const headerElement = generateHeaderDOM()
@@ -104,22 +124,33 @@ const generateStoreOpeningHoursDOM = (message) => {
     return openingHoursElement
 }
 
-const renderStore = (store) => { 
 
+//////////////////////////////////
+//////////////////////////////////
+//////////////////////////////////
+const closesTodayAt = '19:55'
+// const closingTimeConverted = convertTimeStringToProperDate(closesTodayAt).getTime() + 24 * 60 * 60 * 1000
+// const closingTimeConverted = convertTimeStringToProperDate(closesTodayAt).getTime() * 60 * 60 * 1000
+const closingTimeConverted = convertTimeStringToProperDate(closesTodayAt)
+//////////////////////////////////
+//////////////////////////////////
+//////////////////////////////////
+
+const renderStore = (store) => { 
+    displayingIndividualStore = true
     ////change this bullshit https://www.peanutbutterjavascript.com/posts/immutable-object-update
     //or object.assign on this page https://www.samanthaming.com/tidbits/70-3-ways-to-clone-objects/#shallow-clone-vs-deep-clone
     temporaryStoreHolder = store //this is unfortunately necessary...
     removeDomElements()
     removeDomElements('search-form')
     store = temporaryStoreHolder //this is unfortunately necessary...
-
     const storeInfo = {...store[0]}
 
 
     //////////////////////move this somewhere else
 
 
-    const contentHolder = document.createElement('span')
+    let contentHolder = document.createElement('span')
     contentHolder.setAttribute('id', 'content-holder')
     const storeElement = generateStoreDOM(temporaryStoreHolder)
     pageMainElement.appendChild(contentHolder)
@@ -135,7 +166,7 @@ const renderStore = (store) => {
 
     //////////////////////////////////////
     // const closesTodayAt = storeInfo.openingHours.regularHours[weekday].closingTime
-    const closesTodayAt = '23:58'
+    // const closesTodayAt = '21:53'
 
     ///you are using this to fake a closing time
 
@@ -167,15 +198,16 @@ const renderStore = (store) => {
         decideAndRenderButtons(displayingHomeStore, contentHolder, store)
         return
     } 
-    if(storeStatus.hasClosed === true) {
-        
+    if(storeStatus.hasClosed === true) {       
 
         const openingHours = `This store has already closed today at ${storeInfo.openingHours.regularHours[weekday].closingTime}`
         let openingHoursElement = generateStoreOpeningHoursDOM(openingHours)
         contentHolder.appendChild(openingHoursElement)
         const today = checkDayOfTheWeek()
+        // findNextOpenDay(6, storeInfo)
         findNextOpenDay(today, storeInfo)
-        decideAndRenderButtons(displayingHomeStore, contentHolder, store)
+        // console.log('today: ', today);
+        decideAndRenderButtons(displayingHomeStore, contentHolder, store, id)
         return
     }
 
@@ -184,19 +216,20 @@ const renderStore = (store) => {
         let openingHoursElement = generateStoreOpeningHoursDOM(openingHours)
         contentHolder.appendChild(openingHoursElement)
         decideAndRenderButtons(displayingHomeStore, contentHolder, store)
+        
+        
         return
     }
 
     const openingHours = `This store is open today until ${closesTodayAt}.`
-    let openingHoursElement = generateStoreOpeningHoursDOM(openingHours)
+      let openingHoursElement = generateStoreOpeningHoursDOM(openingHours)
     openingHoursElement.setAttribute('id', 'opening-hours-element')
     contentHolder.appendChild(openingHoursElement) 
 
-    renderCountdownElement(closesTodayAt, store, contentHolder, storeStatus)
 }
 
 const decideAndRenderButtons =(displayingHomeStore, contentHolder, store)=> {
-    if (displayingHomeStore === false) {
+     if (displayingHomeStore === false) {
         let homeStoreButton = renderHomeStoreButton(store)
         let searchAgainButton = renderSearchAgainButton()
         contentHolder.appendChild(searchAgainButton)        
@@ -207,65 +240,89 @@ const decideAndRenderButtons =(displayingHomeStore, contentHolder, store)=> {
     }
 }
 
-const renderCountdownElement =(closesTodayAt, store, contentHolder, storeStatus)=>{
-    // debugger
-    let countDownElement = document.createElement('span')
+const renderCountdownElement =(timeRemaining)=>{
+    let contentHolder = document.getElementById('content-holder')
+    let countDownElement = document.createElement('span')    
     countDownElement.setAttribute('id', 'count-down-element')
     countDownElement.textContent = 'store closes in:'
-    updateCountdownTimer(false, closesTodayAt, store)
-    decideAndRenderButtons(displayingHomeStore, contentHolder, store)
+
+    countDownElement = document.getElementById('count-down-element')
+    let homeStoreButton = document.getElementById('home-store-button')
+    let searchAgainButton = document.getElementById('search-again-button')
+    
+    if (countDownElement) {countDownElement.parentElement.removeChild(countDownElement)}      
+    if (homeStoreButton !== null) {homeStoreButton.parentElement.removeChild(homeStoreButton)}      
+    if (searchAgainButton !== null) {searchAgainButton.parentElement.removeChild(searchAgainButton)} 
+
+    /////////////////////////////////////
+    /////////////////////////////////////
+    // YOU ARE HERE, YOU HAVE TO GET THE STORE AND STOREID INFO HERE SOMEHOW
+    // TO PASS TO decideAndRenderButtons
+    /////////////////////////////////////
+    /////////////////////////////////////
+    /////////////////////////////////////
+    decideAndRenderButtons(displayingHomeStore, contentHolder)     
+    
+
+    const openingHoursElement = document.getElementById('opening-hours-element')
+    const storeClosesInText = `The store closes in ${timeRemaining.hours} hours, ${timeRemaining.minutes} minutes, ${timeRemaining.seconds} seconds`
+    countDownElement = document.createElement('span')
+    countDownElement.setAttribute('id', 'count-down-element')
+    countDownElement.textContent = storeClosesInText
+    openingHoursElement.appendChild(countDownElement) 
 }
 
-const updateCountdownTimer =(stopMe, closesTodayAt, store)=>{
-    if (stopMe === true) {
-        clearInterval(countdownTimer)
+
+let countdownTimer = setInterval(function() {
+    if (displayingIndividualStore === false) {
         return
+    } else {
+            // get today's date and time in milliseconds
+    let now = new Date().getTime();
+    
+
+    // find the interval between now and the countdown time
+    let timeLeft = closingTimeConverted - now;
+
+    // time calculations for days, hours, minutes and seconds
+    // const days = Math.floor( timeLeft/(1000*60*60*24) );
+    const hours = Math.floor( (timeLeft/(1000*60*60)) % 24 );
+    const minutes = Math.floor( (timeLeft/1000/60) % 60 );
+    const seconds = Math.floor( (timeLeft/1000) % 60 );
+    let timeRemaining = {}
+    timeRemaining.hours = Math.floor( (timeLeft/(1000*60*60)) % 24 );
+    timeRemaining.minutes = Math.floor( (timeLeft/1000/60) % 60 );
+    timeRemaining.seconds = Math.floor( (timeLeft/1000) % 60 );
+
+    // console.log(hours + "h " + minutes + "m " + seconds + "s ");
+    renderCountdownElement(timeRemaining)
+    // clearing countdown when complete
+    if (timeLeft < 0) {
+        let countDownElement = document.getElementById('count-down-element')
+        if (countDownElement) {countDownElement.parentElement.removeChild(countDownElement)} 
+        clearInterval(countdownTimer);
+        console.log('CountDown Finished');
+    }
+        
     }
 
-    countdownTimer = setInterval(function() {
-        let countDownElement = document.getElementById('count-down-element')
-        if (countDownElement) {            
-            countDownElement.parentElement.removeChild(countDownElement)            
-        }
+    }, 1000);
 
-        const openingHoursElement = document.getElementById('opening-hours-element')
-        const closingTimeConverted = convertTimeStringToProperDate(closesTodayAt)
-        let timeRemaining = getCountDownTimeRemaining(closingTimeConverted, store) 
-        const storeClosesInText = `The store closes in ${timeRemaining.hours} hours, ${timeRemaining.minutes} minutes, ${timeRemaining.seconds} seconds`
-        countDownElement = document.createElement('span')
-        countDownElement.setAttribute('id', 'count-down-element')
-        countDownElement.textContent = storeClosesInText
-        openingHoursElement.appendChild(countDownElement)  
+const findNextOpenDay = (todayNumeric, storeInfo)=> {
     
     
-        if (timeRemaining.hours <= 0 && timeRemaining.minutes <= 0 && timeRemaining.seconds) {
-            
-            storeStatus.hasClosed = true
-            renderStore(store)
-            clearInterval(countdownTimer)
-        }
-    }, 1000)
-}
-
-
-const findNextOpenDay = (dateToCheck, storeInfo)=> {
-    
-    
-    if (storeInfo.openingHours.regularHours[dateToCheck].openingTime === '') {       
-
-        if (dateToCheck === 6) {
-            findNextOpenDay(0, storeInfo)
-        } 
-        else {
-            
-            findNextOpenDay(dateToCheck +1, storeInfo)
-        }        
+    if (todayNumeric === 6) {
+        findNextOpenDay(0, storeInfo)
+    } 
+    if (storeInfo.openingHours.regularHours[todayNumeric].openingTime === '') {        
+         findNextOpenDay(todayNumeric +1, storeInfo)              
     } else { 
-        const nextOpeningTime = storeInfo.openingHours.regularHours[dateToCheck].openingTime
+        const nextOpeningTime = storeInfo.openingHours.regularHours[todayNumeric].openingTime
 
         ///////////test this change
-        const nextOpeningWeekday = storeInfo.openingHours.regularHours[dateToCheck + 1].dayOfTheWeek
-        // const nextOpeningWeekday = storeInfo.openingHours.regularHours[dateToCheck ].dayOfTheWeek
+        const nextOpeningWeekday = storeInfo.openingHours.regularHours[todayNumeric + 1].dayOfTheWeek
+        console.log('storeInfo.openingHours.regularHours: ', storeInfo.openingHours.regularHours);
+        // const nextOpeningWeekday = storeInfo.openingHours.regularHours[todayNumeric].dayOfTheWeek
         ///////////test this change
 
 
@@ -289,10 +346,9 @@ const renderSearchAgainButton =()=>{
     let searchAgainButton = document.createElement('button')
     searchAgainButton.textContent = 'CHECK ANOTHER STORE'
     searchAgainButton.setAttribute('id', 'search-again-button')
-    // console.log('countdownTimer: ', countdownTimer);
 
     searchAgainButton.addEventListener("click", (e) => {
-        updateCountdownTimer(true)
+        displayingIndividualStore = false
         removeDomElements()
         renderSearchElement()
         createSearchEventHandler()        
@@ -305,11 +361,10 @@ const renderHomeStoreButton =(store)=> {
     homeStoreButton.textContent = 'MAKE THIS MY HOME STORE'
     homeStoreButton.setAttribute('id', 'home-store-button')
 
-    homeStoreButton.addEventListener("click", (e) => {
+    homeStoreButton.addEventListener("click", (e) => {        
         let contentHolder = document.getElementById('content-holder')
-        preferredStore.setHomeStore(store[0].storeName)
+        preferredStore.setHomeStore(store[0].storeName)        
         removeDomElements('home-store-button')
-
         let searchAgainButton = document.getElementById('search-again-button')
         if (!searchAgainButton) {
         let searchAgainButton = renderSearchAgainButton()
@@ -358,6 +413,8 @@ const selectThisStore =(id, stores)=> {
 }
 
 const renderStores = (stores, moreResultsToDisplay, currentListOfStores) => { 
+    
+    displayingIndividualStore = false
     let showMoreResultsButtonExists = document.getElementById('show-more-results')
     if (showMoreResultsButtonExists !== null) {
         showMoreResultsButtonExists.remove()
@@ -441,5 +498,5 @@ const removeDomElements = (elementsToDestroy) => {
 }
 
 
-export { renderStores, renderStore, renderNoStoresFound, renderHeader, renderSearchElement, renderTimeAndDate, removeDomElements }
+export { renderStores, renderStore, renderNoStoresFound, renderHeader, renderClockDom, renderSearchElement, renderTimeAndDate, removeDomElements }
 
