@@ -6,7 +6,7 @@ let filteredHoliday = null
 
 const now = new Date()
 // now.setMonth(7)
-// const now = new Date(2021,6,2,17,49,59)
+// const now = new Date(2021,6,3,17,49,59)
 
 const formatCurrentTime =()=>{
     let nowTime = new Date()
@@ -47,6 +47,7 @@ const isTodayHoliday = (selectedStoreHolidays) => {
 
 const checkDayOfTheWeek = function (){
     let dayOfTheWeek = now.getDay(now)
+    
     //Note JS uses 0 to represent sunday, vinmonpolet uses 0 to represent monday
     //the code below is just adjusting that
     let convertedDayOfTheWeek 
@@ -65,6 +66,7 @@ const checkDayOfTheWeek = function (){
     //leave this section for testing........ 
     //used to fake an updated now
      let now2 = new Date()
+    //  console.log('now2: ', now2);
     ///////////////////////
     //try this may have to coordinate this fake now with the now above
     // let now2 = new Date(now.valueOf())
@@ -106,7 +108,7 @@ const checkDayOfTheWeek = function (){
 }
 
 const convertTimeStringToProperDate =(timeString)=> {
-    //used to take the string opening/closing times ie('11:30) and put them into a js date object, so the countdown timer has proper js dates
+    //used to take the string opening/closing times ie('12:35') and put them into a js date object, so the countdown timer has proper js dates
     let timeToArray = timeString.split(':')
 
     let hour = timeToArray[0]
@@ -146,12 +148,7 @@ const temporaryConvertTimeStringToProperDate =(timeString)=> {
 }
 
 const getCountDownTimeRemaining =(closingTimeConverted)=> {
-    //////////////
-    /////must coordinate with the other 2 nows
-    
-    const constantlyChangingNow = new Date(now.valueOf())
-    //////////////
-    // const constantlyChangingNow = new Date()
+    const constantlyChangingNow = new Date()
 
     const timeLeft = {}
     const timeuntilclosing = closingTimeConverted - constantlyChangingNow

@@ -1,7 +1,7 @@
 
 'use strict'
 import { getStoreByName, getallStores } from 'components/requests'
-import { renderStores, renderStore, renderNoStoresFound, renderHeader, renderSearchElement, renderTimeAndDate, removeDomElements } from 'views/createPage'
+import { renderStores, renderStore, renderNoStoresFound, renderHeader, renderClockDom, renderSearchElement, renderTimeAndDate, removeDomElements } from 'views/createPage'
 import { preferredStore } from 'components/preferenceStorage'
 let searchTerm
 let haveDownloadedEntireList = false
@@ -16,6 +16,7 @@ let currentListOfStores = {}
 import 'main.css';
 
 renderHeader()
+renderClockDom()
 renderTimeAndDate()
 
 const createSearchEventHandler=()=>{
@@ -72,11 +73,10 @@ const filterMultiSearches = (multipleSearchTerms) => {
 
 //todo change button click to entire button (display block not working yet, may have to do it in css)
 //todo more holiday testing, when the vinmonopolet API adds more holidays
-//todo MUST HAVE CHECK ANOTHER STORE BUTTON ON STORE CLOSED (only WHEN DISPLAYING HOMESTORE)
-//todo add an analog clock   .... https://www.w3schools.com/graphics/canvas_clock.asp
 
 
 const handleSingleQuery = function (searchTerm){
+  console.log('searchTerm: ', searchTerm);
     
     getStoreByName(searchTerm)
     .then((result) => { 
