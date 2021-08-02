@@ -158,7 +158,7 @@ export const stores = [{
             "closed": false
         }, {
             "dayOfTheWeek": "Friday",
-            "openingTime": "10:00",
+            "openingTime": "10:30",
             "closingTime": "18:00",
             "closed": false
         }, {
@@ -2189,22 +2189,22 @@ export const stores = [{
         }, {
             "dayOfTheWeek": "Wednesday",
             "openingTime": "10:00",
-            "closingTime": "18:00",
+            "closingTime": "20:48",
             "closed": false
         }, {
             "dayOfTheWeek": "Thursday",
             "openingTime": "10:00",
-            "closingTime": "18:00",
+            "closingTime": "16:30",
             "closed": false
         }, {
             "dayOfTheWeek": "Friday",
-            "openingTime": "10:00",
-            "closingTime": "18:00",
+            "openingTime": "8:00",
+            "closingTime": "12:59",
             "closed": false
         }, {
             "dayOfTheWeek": "Saturday",
-            "openingTime": "10:00",
-            "closingTime": "16:00",
+            "openingTime": "17:00",
+            "closingTime": "23:00",
             "closed": false
         }, {
             "dayOfTheWeek": "Sunday",

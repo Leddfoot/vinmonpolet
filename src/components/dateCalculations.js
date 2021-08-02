@@ -1,23 +1,11 @@
-
+import { setStoreOpenStatus } from '../index'
 let selectedStoreHolidays = {}
 let filteredHoliday = null
 
 
 
 const now = new Date()
-// now.setMonth(7)
-// const now = new Date(2021,6,3,17,49,59)
-
-const formatCurrentTime =()=>{
-    let nowTime = new Date()
-    let nowHour = nowTime.getHours(nowTime)
-    let nowMinutes = nowTime.getMinutes(nowTime)
-    let nowSeconds = nowTime.getSeconds(nowTime)
-    return `${nowHour}:${nowMinutes}:${nowSeconds}`
-}
-
-const formattedCurrentTime = formatCurrentTime()
-
+// const now = new Date(2021,6,25,17,49,59)
 const nowYear = now.getFullYear(now)
 const nowMonth = now.getMonth(now)
 const nowDate = now.getDate(now)
@@ -26,6 +14,20 @@ const nowWeekday = now.toLocaleString("default", { weekday: "short" })
 
 const todayDateForHolidayCheck = `${nowYear}.${nowMonth + 1}.${nowDate}`
 const todayDateForDisplay = `${nowWeekday}, ${nowMonthText} ${nowDate}`
+
+const formatCurrentTime =()=>{
+    let nowTime = new Date()
+    let nowHour = nowTime.getHours(nowTime)
+    let nowMinutes = nowTime.getMinutes(nowTime)
+    let nowSeconds = nowTime.getSeconds(nowTime)
+    if (nowSeconds < 10) {
+        nowSeconds = `0${nowSeconds}`
+    } 
+    return `${nowHour}:${nowMinutes}:${nowSeconds}`
+}
+
+const formattedCurrentTime = formatCurrentTime()
+
 const setSelectedStoreHolidays = (holidayDates) => {
     selectedStoreHolidays = holidayDates
     isTodayHoliday(selectedStoreHolidays)    
@@ -45,47 +47,46 @@ const isTodayHoliday = (selectedStoreHolidays) => {
     } 
 }
 
-const checkDayOfTheWeek = function (){
-    let dayOfTheWeek = now.getDay(now)
-    
+const getTodayNumeric = ()=>new Date().getDay() //0 sunday, 1 monday, 2 tuesday... - 6 saturday
+
+const getTodayNumericConvertedToVinmonpolet =()=>{
     //Note JS uses 0 to represent sunday, vinmonpolet uses 0 to represent monday
     //the code below is just adjusting that
-    let convertedDayOfTheWeek 
-
-    if (dayOfTheWeek >= 1) {
-        convertedDayOfTheWeek = dayOfTheWeek -= 1
+    const today = getTodayNumeric()
+    if (today === 0) {
+        return 6
     } else {
-        convertedDayOfTheWeek = 6
-     }
-    return convertedDayOfTheWeek    
+        return today - 1
+    }
 }
 
- const isStoreOpenNow = (openingTimeToday, closingTimeToday)=>{  
+ const generateStoreOpenStatus = (store)=>{
+     console.log('store: ', store);
+    let now2 = new Date(now.valueOf())
 
-    //////////////////////////////////////
-    //leave this section for testing........ 
-    //used to fake an updated now
-     let now2 = new Date()
-    //  console.log('now2: ', now2);
-    ///////////////////////
-    //try this may have to coordinate this fake now with the now above
-    // let now2 = new Date(now.valueOf())
-    // let now2 = new Date(2021,6,2,17,49,59)
-    /////////////////////
-    setInterval(function() {
-        return now2 = new Date()
-    }, 1000)
-    ////////////////////////
-    let status = {}
+    let status = {}   
 
-    const convertedOpeningTime = convertTimeStringToProperDate(openingTimeToday)
+    if (store[0].status !== 'Open') { //Note that this is status in the store info from the API, not the status being set
+        status.closedAllDay = true
+        status.isOpen = false
+    }
 
-    //////////////////////////////////
-    // const convertedClosingTime = convertTimeStringToProperDate(closingTimeToday)
-    const convertedClosingTime = temporaryConvertTimeStringToProperDate(closingTimeToday)
-    ///you are using temporaryconverblabla to fake closing time; was messing up the opeing tiem
- 
-    ///////////////////////////
+    let todayNumericConvertedToVinmonopolet = getTodayNumericConvertedToVinmonpolet()
+
+    let storeHours = store[0].openingHours.regularHours
+
+    if (storeHours[todayNumericConvertedToVinmonopolet].closed === true) {
+        status.closedAllDay = true        
+    } else {
+        status.closedAllDay = false        
+    }    
+
+    let openingTime = storeHours[todayNumericConvertedToVinmonopolet].openingTime
+    let closingTime = storeHours[todayNumericConvertedToVinmonopolet].closingTime
+
+    const convertedOpeningTime = convertTimeStringToProperDate(openingTime)
+    const convertedClosingTime = convertTimeStringToProperDate(closingTime)
+
     if (now2 >= convertedOpeningTime) {
         status.hasOpened = true
     }  else {
@@ -103,8 +104,14 @@ const checkDayOfTheWeek = function (){
     } else {
         status.isOpen = false
     }
-    return status
-    
+
+    if (status.isOpen) {
+        setStoreOpenStatus(true)
+    } else {
+        setStoreOpenStatus(false)
+    }
+
+    return status    
 }
 
 const convertTimeStringToProperDate =(timeString)=> {
@@ -114,37 +121,13 @@ const convertTimeStringToProperDate =(timeString)=> {
     let hour = timeToArray[0]
     let minute = timeToArray[1]
 
-    const convertedTime = new Date(now.valueOf()) //THis prevents pointing to the now ..deep copy
+    const convertedTime = new Date(now.valueOf()) 
 
     convertedTime.setHours(hour)
     convertedTime.setMinutes(minute)
     convertedTime.setSeconds(0)
-    // convertedTime.setHours(15)
-    // convertedTime.setMinutes(58)
-    // convertedTime.setSeconds(0)
 
-    return convertedTime
-    
-}
-
-const temporaryConvertTimeStringToProperDate =(timeString)=> {
-    //used to take the string opening/closing times ie('11:30) and put them into a js date object, so the countdown timer has proper js dates
-    let timeToArray = timeString.split(':')
-
-    let hour = timeToArray[0]
-    let minute = timeToArray[1]
-
-    const convertedTime = new Date(now.valueOf()) //THis prevents pointing to the now ..deep copy
-
-    convertedTime.setHours(hour)
-    convertedTime.setMinutes(minute)
-    convertedTime.setSeconds(0)
-    // convertedTime.setHours(15)
-    // convertedTime.setMinutes(58)
-    // convertedTime.setSeconds(0)
-
-    return convertedTime
-    
+    return convertedTime    
 }
 
 const getCountDownTimeRemaining =(closingTimeConverted)=> {
@@ -163,4 +146,4 @@ const getCountDownTimeRemaining =(closingTimeConverted)=> {
 
 }
 
-export { setSelectedStoreHolidays, isTodayHoliday, filteredHoliday, checkDayOfTheWeek, formattedCurrentTime, todayDateForDisplay, isStoreOpenNow, getCountDownTimeRemaining, convertTimeStringToProperDate, formatCurrentTime }
+export { setSelectedStoreHolidays, isTodayHoliday, filteredHoliday, formattedCurrentTime, todayDateForDisplay, generateStoreOpenStatus, getCountDownTimeRemaining, convertTimeStringToProperDate, formatCurrentTime, getTodayNumericConvertedToVinmonpolet }
