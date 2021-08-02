@@ -1,8 +1,10 @@
 
 'use strict'
 import { getStoreByName, getallStores } from 'components/requests'
-import { renderStores, renderStore, renderNoStoresFound, renderHeader, renderClockDom, renderSearchElement, renderTimeAndDate, removeDomElements } from 'views/createPage'
+import { renderStores, renderStoreAddress, renderNoStoresFound, renderHeader, renderClockDom, renderSearchElement, renderTimeAndDate, removeDomElements } from 'views/createPage'
 import { preferredStore } from 'components/preferenceStorage'
+import 'main.css'
+
 let searchTerm
 let haveDownloadedEntireList = false
 let searchTermIsMultiple = false
@@ -10,10 +12,23 @@ let moreResultsToDisplay = false
 let listToPaginate = []
 let entireListOfStores = {}
 let displayingHomeStore = false
+let selectedStoreIsOpen = false
 let currentListOfStores = {}
 
+const getDisplayingHomestore =()=>{ //used for deciding whether or not to render the 'make this my home store button'
+  return displayingHomeStore
+}
 
-import 'main.css';
+const setDisplayingHomeStore = (status)=> {
+  displayingHomeStore = status
+}
+const getStoreOpenStatus =()=>{ //used for deciding if the countdown timer needs to be displayed
+  return selectedStoreIsOpen
+}
+
+const setStoreOpenStatus = (status)=> {
+  selectedStoreIsOpen = status
+}
 
 renderHeader()
 renderClockDom()
@@ -57,7 +72,6 @@ const createSearchEventHandler=()=>{
   })
 }
 
-
 const filterMultiSearches = (multipleSearchTerms) => {
   const filteredStoreListMultSearch = new Array
   for (let i = 0; i < multipleSearchTerms.length; i++) {
@@ -70,13 +84,20 @@ const filterMultiSearches = (multipleSearchTerms) => {
   
 }
 
+/////////////////////////////////////////////////////
+/////////////////////////////////////////////////////
+/////////////////////////////////////////////////////
+/////////////////////////////////////////////////////
 
-//todo change button click to entire button (display block not working yet, may have to do it in css)
-//todo more holiday testing, when the vinmonopolet API adds more holidays
-
+////////todo cors
+///////todo more holiday testing, when the vinmonopolet API adds more holidays
+/////////////////////////////////////////////////////
+/////////////////////////////////////////////////////
+/////////////////////////////////////////////////////
+/////////////////////////////////////////////////////
+/////////////////////////////////////////////////////
 
 const handleSingleQuery = function (searchTerm){
-  console.log('searchTerm: ', searchTerm);
     
     getStoreByName(searchTerm)
     .then((result) => { 
@@ -155,7 +176,7 @@ const handleMultiMatches =(multiMatches, combinedFetchArrayWODupes) => {
 
 const handlePossibleMatches = (possibleMatches) => {
   if (possibleMatches.length === 1){
-    renderStore(possibleMatches)
+    renderStoreAddress(possibleMatches)
   } else if (possibleMatches.length > 1 && possibleMatches.length <= 10) {
     let moreResultsToDisplay = false
     renderStores(possibleMatches, moreResultsToDisplay, currentListOfStores) 
@@ -204,8 +225,6 @@ const filterResults = function (stores, searchTerm){
 
 const checkForMultipleSearchTerms =()=> searchTermIsMultiple
 
-
-
 const handleHomeStore =() =>{
   let homeStore = preferredStore.initialize()
 
@@ -221,7 +240,7 @@ const handleHomeStore =() =>{
 
 handleHomeStore()
 
-export {checkForMultipleSearchTerms, getNext10OrFewerResults, listToPaginate, displayingHomeStore, createSearchEventHandler, currentListOfStores}
+export {checkForMultipleSearchTerms, getNext10OrFewerResults, listToPaginate, setDisplayingHomeStore, getStoreOpenStatus, getDisplayingHomestore, displayingHomeStore, createSearchEventHandler, currentListOfStores, setStoreOpenStatus}
 
 
 
